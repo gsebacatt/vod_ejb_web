@@ -8,6 +8,7 @@ package io.jeandavid.projects.vod.entities;
 import java.io.Serializable;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.xml.bind.annotation.XmlRootElement;
 
 
 /**
@@ -16,6 +17,7 @@ import javax.persistence.Entity;
  */
 @Entity
 @DiscriminatorValue("DIRECTOR")
+@XmlRootElement
 public class Director extends Person implements Serializable {
 
   private static final long serialVersionUID = 1L;

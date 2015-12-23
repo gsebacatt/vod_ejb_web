@@ -48,6 +48,7 @@ public class ApplicationConfig extends Application {
    */
   private void addRestResourceClasses(Set<Class<?>> resources) {
     resources.add(io.jeandavid.projects.vod.service.AuthorFacadeREST.class);
+    resources.add(io.jeandavid.projects.vod.service.DirectorFacadeREST.class);
     resources.add(io.jeandavid.projects.vod.service.DvdFacadeREST.class);
   }
   

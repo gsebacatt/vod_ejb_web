@@ -33,6 +33,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.annotations.Where;
 
 /**
  *
@@ -49,7 +50,35 @@ public class Dvd implements Serializable {
   public Set<Person> getPersons() {
     return persons;
   }
-
+  
+  public void addPerson(Person person) {
+    if(!getPersons().contains(person)) {
+      getPersons().add(person);
+    }
+    if(!person.getDvds().contains(this)) {
+      person.getDvds().add(this);
+    }
+  }
+  
+  @ManyToMany(mappedBy = "dvds")
+  @JsonIgnore
+  @Where(clause="person_type='AUTHOR'")
+  private final Set<Person> authors = new HashSet<Person>();
+  
+  public Set<Person> getAuthors() {
+    return authors;
+  }
+  
+  @ManyToMany(mappedBy = "dvds")
+  @JsonIgnore
+  @org.hibernate.annotations.Where(clause="person_type='DIRECTOR'")
+  private final Set<Person> directors = new HashSet<Person>();
+  
+  public Set<Person> getDirectors() {
+    return directors;
+  }
+  
+  
   private static final long serialVersionUID = 1L;
   
   @Id

@@ -5,7 +5,10 @@
  */
 package io.jeandavid.projects.vod.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
@@ -14,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.ManyToMany;
 
 /**
  *
@@ -21,7 +25,7 @@ import javax.persistence.InheritanceType;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="persontype", discriminatorType=DiscriminatorType.STRING )
+@DiscriminatorColumn(name="person_type", discriminatorType=DiscriminatorType.STRING )
 public abstract class Person implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -32,6 +36,23 @@ public abstract class Person implements Serializable {
   private String firstName;
   private String lastName;
 
+  @ManyToMany
+  @JsonIgnore
+  private Set<Dvd> dvds = new HashSet<Dvd>();
+
+  public Set<Dvd> getDvds() {
+    return dvds;
+  }
+
+  public void addDvd(Dvd dvd) {
+    if(!getDvds().contains(dvd)) {
+      getDvds().add(dvd);
+    }
+    if(!dvd.getPersons().contains(this)) {
+      dvd.getPersons().add(this);
+    }
+  }
+  
   public String getFirstName() {
     return firstName;
   }

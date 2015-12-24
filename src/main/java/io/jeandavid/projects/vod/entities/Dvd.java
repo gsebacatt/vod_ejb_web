@@ -23,11 +23,15 @@
  */
 package io.jeandavid.projects.vod.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -38,13 +42,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Dvd implements Serializable {
 
+  @ManyToMany(mappedBy = "dvds")
+  @JsonIgnore
+  private final Set<Person> persons = new HashSet<Person>();
+
+  public Set<Person> getPersons() {
+    return persons;
+  }
+
   private static final long serialVersionUID = 1L;
+  
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
   private String title;
-
+  
   public String getTitle() {
     return title;
   }

@@ -6,7 +6,10 @@
 package io.jeandavid.projects.vod.service;
 
 import io.jeandavid.projects.vod.entities.Author;
+import io.jeandavid.projects.vod.entities.Dvd;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -61,7 +64,23 @@ public class AuthorFacadeREST extends AbstractFacade<Author> {
   public Author find(@PathParam("id") Long id) {
     return super.find(id);
   }
+  
+  @POST
+  @Path("{id}/dvd")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public void addDvd(@PathParam("id") Long id, Dvd dvd) {
+    Author author = super.find(id);
+    author.addDvd(dvd);
+  }
 
+  @GET
+  @Path("{id}/dvd")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Set<Dvd> getDvds(@PathParam("id") Long id) {
+    Author author = super.find(id);
+    return new HashSet<Dvd>(author.getDvds());
+  }    
+    
   @GET
   @Override
   @Produces(MediaType.APPLICATION_JSON)

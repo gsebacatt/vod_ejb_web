@@ -23,8 +23,6 @@
  */
 package io.jeandavid.projects.vod.service;
 
-import io.jeandavid.projects.vod.entities.Author;
-import io.jeandavid.projects.vod.entities.Director;
 import io.jeandavid.projects.vod.entities.Dvd;
 import io.jeandavid.projects.vod.entities.Person;
 import java.util.HashSet;
@@ -60,16 +58,18 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
 
   @POST
   @Override
+  @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public void create(Dvd entity) {
-    super.create(entity);
+  public Dvd create(Dvd entity) {
+    return super.create(entity);
   }
 
   @PUT
   @Path("{id}")
+  @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public void edit(@PathParam("id") Long id, Dvd entity) {
-    super.edit(entity);
+  public Dvd edit(@PathParam("id") Long id, Dvd entity) {
+    return super.edit(entity);
   }
 
   @DELETE

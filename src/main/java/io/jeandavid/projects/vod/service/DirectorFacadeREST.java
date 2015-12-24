@@ -40,16 +40,18 @@ public class DirectorFacadeREST extends AbstractFacade<Director> {
 
   @POST
   @Override
+  @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
-  public void create(Director entity) {
-    super.create(entity);
+  public Director create(Director entity) {
+    return super.create(entity);
   }
 
   @PUT
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void edit(@PathParam("id") Long id, Director entity) {
-    super.edit(entity);
+  @Produces(MediaType.APPLICATION_JSON)
+  public Director edit(@PathParam("id") Long id, Director entity) {
+    return super.edit(entity);
   }
 
   @DELETE

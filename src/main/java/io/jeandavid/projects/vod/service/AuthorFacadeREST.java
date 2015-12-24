@@ -41,15 +41,17 @@ public class AuthorFacadeREST extends AbstractFacade<Author> {
   @POST
   @Override
   @Consumes(MediaType.APPLICATION_JSON)
-  public void create(Author entity) {
-    super.create(entity);
+  @Produces(MediaType.APPLICATION_JSON)
+  public Author create(Author entity) {
+    return super.create(entity);
   }
 
   @PUT
   @Path("{id}")
   @Consumes(MediaType.APPLICATION_JSON)
-  public void edit(@PathParam("id") Long id, Author entity) {
-    super.edit(entity);
+  @Produces(MediaType.APPLICATION_JSON)
+  public Author edit(@PathParam("id") Long id, Author entity) {
+    return super.edit(entity);
   }
 
   @DELETE

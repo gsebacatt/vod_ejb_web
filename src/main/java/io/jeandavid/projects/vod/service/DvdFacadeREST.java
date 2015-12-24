@@ -23,8 +23,13 @@
  */
 package io.jeandavid.projects.vod.service;
 
+import io.jeandavid.projects.vod.entities.Author;
+import io.jeandavid.projects.vod.entities.Director;
 import io.jeandavid.projects.vod.entities.Dvd;
+import io.jeandavid.projects.vod.entities.Person;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -80,6 +85,22 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
     return super.find(id);
   }
 
+  @GET
+  @Path("{id}/author")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Set<Person> getAuthors(@PathParam("id") Long id) {
+    Dvd dvd = super.find(id);
+    return new HashSet<Person>(dvd.getAuthors());
+  }
+
+  @GET
+  @Path("{id}/director")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Set<Person> getDirectors(@PathParam("id") Long id) {
+    Dvd dvd = super.find(id);
+    return new HashSet<Person>(dvd.getDirectors());
+  }
+  
   @GET
   @Override
   @Produces(MediaType.APPLICATION_JSON)

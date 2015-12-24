@@ -6,7 +6,10 @@
 package io.jeandavid.projects.vod.service;
 
 import io.jeandavid.projects.vod.entities.Director;
+import io.jeandavid.projects.vod.entities.Dvd;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -62,6 +65,22 @@ public class DirectorFacadeREST extends AbstractFacade<Director> {
     return super.find(id);
   }
 
+  @POST
+  @Path("{id}/dvd")
+  @Consumes(MediaType.APPLICATION_JSON)
+  public void addDvd(@PathParam("id") Long id, Dvd dvd) {
+    Director director = super.find(id);
+    director.addDvd(dvd);
+  }
+
+  @GET
+  @Path("{id}/dvd")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Set<Dvd> getDvds(@PathParam("id") Long id) {
+    Director director = super.find(id);
+    return new HashSet<Dvd>(director.getDvds());
+  }    
+  
   @GET
   @Override
   @Produces(MediaType.APPLICATION_JSON)

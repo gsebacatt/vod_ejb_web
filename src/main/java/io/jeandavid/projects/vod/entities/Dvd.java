@@ -66,7 +66,7 @@ public class Dvd extends Searchable implements Serializable {
   
   @ManyToMany(mappedBy = "dvds")
   @JsonIgnore
-  @Where(clause="person_type='AUTHOR'")
+  @Where(clause="personType='AUTHOR'")
   private final Set<Person> authors = new HashSet<Person>();
   
   public Set<Person> getAuthors() {
@@ -75,7 +75,7 @@ public class Dvd extends Searchable implements Serializable {
   
   @ManyToMany(mappedBy = "dvds")
   @JsonIgnore
-  @org.hibernate.annotations.Where(clause="person_type='DIRECTOR'")
+  @Where(clause="personType='DIRECTOR'")
   private final Set<Person> directors = new HashSet<Person>();
   
   public Set<Person> getDirectors() {

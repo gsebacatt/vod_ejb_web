@@ -48,7 +48,7 @@ import org.hibernate.criterion.Restrictions;
  */
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="person_type", discriminatorType=DiscriminatorType.STRING )
+@DiscriminatorColumn(name="personType", discriminatorType=DiscriminatorType.STRING )
 public abstract class Person extends Searchable implements Serializable {
 
   private static final long serialVersionUID = 1L;

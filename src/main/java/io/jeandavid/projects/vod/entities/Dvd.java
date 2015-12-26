@@ -51,8 +51,31 @@ public class Dvd extends Searchable implements Serializable {
 
   @ManyToMany(mappedBy = "dvds")
   @JsonIgnore
-  private final Set<Person> persons = new HashSet<Person>();
+  private final Set<DvdOrder> orders = new HashSet<DvdOrder>();
 
+  public Set<DvdOrder> getOrders() {
+    return orders;
+  }
+  
+  
+  @ManyToMany(mappedBy = "dvds")
+  @JsonIgnore
+  private Set<Person> persons = new HashSet<Person>();
+
+  public void setPersons(Set<Person> persons) {
+    this.persons = persons;
+  }
+
+  private Float price;
+
+  public Float getPrice() {
+    return price;
+  }
+
+  public void setPrice(Float price) {
+    this.price = price;
+  }
+  
   public Set<Person> getPersons() {
     return persons;
   }

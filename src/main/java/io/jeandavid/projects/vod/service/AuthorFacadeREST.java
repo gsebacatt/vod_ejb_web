@@ -90,7 +90,7 @@ public class AuthorFacadeREST extends AbstractFacade<Author> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     Author author = super.find(id);
-    author.addDvd(dvd);
+    author.addDvd(dvd.reload(em));
   }
 
   @GET

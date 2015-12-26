@@ -67,6 +67,10 @@ public abstract class Person extends Searchable implements Serializable {
     return dvds;
   }
 
+  public void setDvds(Set<Dvd> dvds) {
+    this.dvds = dvds;
+  }
+
   @JsonIgnore
   @Formula(value = " concat(firstName, ' ', lastName) ")
   private String fullName;

@@ -29,12 +29,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.annotations.Where;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
@@ -137,5 +139,12 @@ public class Dvd extends Searchable implements Serializable {
       criteria.add(Restrictions.ilike("title", fields.get("title").toString(), MatchMode.ANYWHERE)); 
     return criteria;
   }
-  
+ 
+  public Dvd reload(EntityManager em) {
+    Session session = em.unwrap(Session.class);
+    session.beginTransaction();
+    Dvd dvd = (Dvd) session.get(Dvd.class, this.id);
+    session.getTransaction().commit();
+    return dvd;
+  }
 }

@@ -90,7 +90,7 @@ public class DirectorFacadeREST extends AbstractFacade<Director> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     Director director = super.find(id);
-    director.addDvd(dvd);
+    director.addDvd(dvd.reload(em));
   }
 
   @GET

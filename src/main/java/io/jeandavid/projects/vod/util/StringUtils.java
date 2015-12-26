@@ -21,36 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package io.jeandavid.projects.vod;
+package io.jeandavid.projects.vod.util;
 
-import java.util.Set;
-import javax.ws.rs.core.Application;
+import org.apache.commons.lang3.text.WordUtils;
 
 /**
  *
  * @author jd
  */
-@javax.ws.rs.ApplicationPath("api")
-public class ApplicationConfig extends Application {
-
-  @Override
-  public Set<Class<?>> getClasses() {
-    Set<Class<?>> resources = new java.util.HashSet<>();
-    addRestResourceClasses(resources);
-    return resources;
-  }
-
-  /**
-   * Do not modify addRestResourceClasses() method.
-   * It is automatically populated with
-   * all resources defined in the project.
-   * If required, comment out calling this method in getClasses().
-   */
-  private void addRestResourceClasses(Set<Class<?>> resources) {
-    resources.add(io.jeandavid.projects.vod.service.AuthorFacadeREST.class);
-    resources.add(io.jeandavid.projects.vod.service.DirectorFacadeREST.class);
-    resources.add(io.jeandavid.projects.vod.service.DvdFacadeREST.class);
-    resources.add(io.jeandavid.projects.vod.service.SearchFacadeREST.class);
+public class StringUtils {
+ 
+  public static String camelize(String string) {
+    return WordUtils.capitalizeFully(string, '_').replace(" ", "");
   }
   
 }

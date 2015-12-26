@@ -26,6 +26,7 @@ package io.jeandavid.projects.vod.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,7 +34,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.Criteria;
 import org.hibernate.annotations.Where;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
@@ -41,7 +45,7 @@ import org.hibernate.annotations.Where;
  */
 @Entity
 @XmlRootElement
-public class Dvd implements Serializable {
+public class Dvd extends Searchable implements Serializable {
 
   @ManyToMany(mappedBy = "dvds")
   @JsonIgnore
@@ -95,6 +99,7 @@ public class Dvd implements Serializable {
     this.title = title;
   }
   
+  @Override
   public Long getId() {
     return id;
   }
@@ -125,6 +130,12 @@ public class Dvd implements Serializable {
   @Override
   public String toString() {
     return "io.jeandavid.projects.vod.entities.Dvd[ id=" + id + " ]";
+  }
+
+  public static Criteria search(Criteria criteria, Map<String, Object> fields) {
+    if(fields.get("title") != null) 
+      criteria.add(Restrictions.ilike("title", fields.get("title").toString(), MatchMode.ANYWHERE)); 
+    return criteria;
   }
   
 }

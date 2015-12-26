@@ -26,6 +26,7 @@ package io.jeandavid.projects.vod.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
@@ -36,6 +37,10 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToMany;
+import org.hibernate.Criteria;
+import org.hibernate.annotations.Formula;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
@@ -44,7 +49,7 @@ import javax.persistence.ManyToMany;
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="person_type", discriminatorType=DiscriminatorType.STRING )
-public abstract class Person implements Serializable {
+public abstract class Person extends Searchable implements Serializable {
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -62,6 +67,18 @@ public abstract class Person implements Serializable {
     return dvds;
   }
 
+  @JsonIgnore
+  @Formula(value = " concat(firstName, ' ', lastName) ")
+  private String fullName;
+
+  public String getFullName() {
+    return fullName;
+  }
+
+  public void setFullName(String fullName) {
+    this.fullName = fullName;
+  }
+  
   public void addDvd(Dvd dvd) {
     if(!getDvds().contains(dvd)) {
       getDvds().add(dvd);
@@ -87,6 +104,7 @@ public abstract class Person implements Serializable {
     this.lastName = lastName;
   }
   
+  @Override
   public Long getId() {
     return id;
   }
@@ -104,6 +122,20 @@ public abstract class Person implements Serializable {
   @Override
   public String toString() {
     return "io.jeandavid.projects.vod.entities.Person[ id=" + id + " ]";
+  }
+
+  public static Criteria search(Criteria criteria, Map<String, Object> fields) {
+    if(fields.get("fullName") != null) {
+      criteria.add(Restrictions.ilike("fullName", fields.get("fullName").toString(), MatchMode.ANYWHERE));
+    } else {
+      if(fields.get("firstName") != null) {
+        criteria.add(Restrictions.ilike("firstName", fields.get("firstName").toString(), MatchMode.ANYWHERE));
+      }
+      if(fields.get("lastName") != null) {
+        criteria.add(Restrictions.ilike("lastName", fields.get("lastName").toString(), MatchMode.ANYWHERE));
+      }      
+    }
+    return criteria;
   }
   
 }

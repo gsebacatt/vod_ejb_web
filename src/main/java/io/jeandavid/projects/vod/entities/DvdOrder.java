@@ -36,6 +36,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -45,6 +46,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @XmlRootElement
 public class DvdOrder implements Serializable {
+
+  @ManyToOne
+  private DvdOrder parentDvdOrder;
 
   @ManyToOne
   private DvdProvider dvdProvider;
@@ -62,6 +66,23 @@ public class DvdOrder implements Serializable {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
+  
+  @OneToMany(mappedBy = "parentDvdOrder")
+  @JsonIgnore
+  private Set<DvdOrder> subDvdOrders = new HashSet<>();
+
+  public Set<DvdOrder> getSubDvdOrders() {
+    return subDvdOrders;
+  }
+
+  public DvdOrder getParentDvdOrder() {
+    return parentDvdOrder;
+  }
+
+  public void setParentDvdOrder(DvdOrder parentDvdOrder) {
+    this.parentDvdOrder = parentDvdOrder;
+  }
+  
   public DvdProvider getDvdProvider() {
     return dvdProvider;
   }

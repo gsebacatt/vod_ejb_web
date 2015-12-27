@@ -105,6 +105,14 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   }
 
   @GET
+  @Path("{id}/sub_dvd_orders")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Set<DvdOrder> getSubDvdOrders(@PathParam("id") Long id) {
+    DvdOrder dvdOrder = super.find(id);
+    return new HashSet<>(dvdOrder.getSubDvdOrders());
+  }
+  
+  @GET
   @Override
   @Produces(MediaType.APPLICATION_JSON)
   public List<DvdOrder> findAll() {

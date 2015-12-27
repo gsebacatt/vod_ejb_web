@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -105,6 +107,17 @@ public class DvdOrder implements Serializable {
     }
   }
   
+  public void removeDvd(Dvd dvd) {
+    for(int i = 0; i < dvd.getQuantity(); i++) {
+      if(getDvds().contains(dvd)) {
+        getDvds().remove(dvd);
+      }
+    }
+    if(dvd.getDvdOrders().contains(this)) {
+      dvd.getDvdOrders().remove(this);
+    }    
+  }
+  
   @ManyToMany
   @JsonIgnore
   private List<Dvd> dvds = new ArrayList<Dvd>();
@@ -176,8 +189,8 @@ public class DvdOrder implements Serializable {
     this.internalState = PAID;
   }
   
-  public HashMap<Long, Integer> countDvdsOccurencies() {
-    HashMap result = new HashMap<Long, Integer>() {
+  public HashMap<Dvd, Integer> countDvdsOccurencies() {
+    HashMap result = new HashMap<Dvd, Integer>() {
       @Override
       public Integer get(Object key) {
           if(!containsKey(key))
@@ -186,9 +199,27 @@ public class DvdOrder implements Serializable {
       }
     };
     for(Dvd dvd : dvds) {
-      result.put(dvd.getId(), (Integer) result.get(dvd.getId()) + 1);
+      result.put(dvd, (Integer) result.get(dvd.getId()) + 1);
     }
     return null;
+  }
+  
+  public HashMap<DvdProvider, List<Dvd>> sortByDvdProvider() {
+    HashMap<DvdProvider, List<Dvd>> result = new HashMap<DvdProvider, List<Dvd>>() {
+      @Override
+      public List get(Object key) {
+          if(!containsKey(key))
+              return new ArrayList<>();
+          return super.get(key);
+      }    
+    };
+    HashMap<Dvd, Integer> dvdOccurencies = this.countDvdsOccurencies();
+    for(Entry<Dvd, Integer> dvdOccurency : dvdOccurencies.entrySet()) {
+      Dvd temp = dvdOccurency.getKey();
+      temp.setQuantity(dvdOccurency.getValue());
+      result.get(temp.getDvdProvider()).add(temp);
+    }
+    return result;
   }
   
 }

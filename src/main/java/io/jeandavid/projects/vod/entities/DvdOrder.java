@@ -97,7 +97,8 @@ public class DvdOrder implements Serializable {
   
   public void addDvd(Dvd dvd) {
     if(!getDvds().contains(dvd)) {
-      getDvds().add(dvd);
+      for(int i = 0; i < dvd.getQuantity(); i++) 
+        getDvds().add(dvd);
     }
     if(!dvd.getDvdOrders().contains(this)) {
       dvd.getDvdOrders().add(this);

@@ -71,7 +71,7 @@ public class Dvd extends Searchable implements Serializable {
   
   private int quantity;
 
-  public int getDvdQuantities() {
+  public int getQuantity() {
     return quantity;
   }
 

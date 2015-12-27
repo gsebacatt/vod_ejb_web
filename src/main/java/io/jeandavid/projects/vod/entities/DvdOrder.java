@@ -51,9 +51,10 @@ public class DvdOrder implements Serializable {
   
   public static final int CREATED = 0;
   public static final int PAID = 1;
-  public static final int PROCESSED = 2;
+  public static final int PENDING = 2;
   public static final int PACKAGED =  3;
-  public static final int SHIPPED = 4;
+  public static final int RECEIVED = 4;
+  public static final int SHIPPED = 5;
   
   private static final long serialVersionUID = 1L;
   
@@ -77,16 +78,16 @@ public class DvdOrder implements Serializable {
     if(!getDvds().contains(dvd)) {
       getDvds().add(dvd);
     }
-    if(!dvd.getOrders().contains(this)) {
-      dvd.getOrders().add(this);
+    if(!dvd.getDvdOrders().contains(this)) {
+      dvd.getDvdOrders().add(this);
     }
   }
   
   @ManyToMany
   @JsonIgnore
-  private Set<Dvd> dvds = new HashSet<Dvd>();
+  private List<Dvd> dvds = new ArrayList<Dvd>();
 
-  public void setDvds(Set<Dvd> dvds) {
+  public void setDvds(List<Dvd> dvds) {
     this.dvds = dvds;
   }
 
@@ -102,7 +103,8 @@ public class DvdOrder implements Serializable {
     switch(internalState) {
       case CREATED : return "created";
       case PAID : return "paid";
-      case PROCESSED : return "processed";
+      case PENDING : return "pending";
+      case RECEIVED : return "received from the provider";
       case PACKAGED : return "packaged";
       case SHIPPED : return "shipped";
     }
@@ -150,6 +152,21 @@ public class DvdOrder implements Serializable {
   
   public void pay() {
     this.internalState = PAID;
+  }
+  
+  public HashMap<Long, Integer> countDvdsOccurencies() {
+    HashMap result = new HashMap<Long, Integer>() {
+      @Override
+      public Integer get(Object key) {
+          if(!containsKey(key))
+              return 0;
+          return super.get(key);
+      }
+    };
+    for(Dvd dvd : dvds) {
+      result.put(dvd.getId(), (Integer) result.get(dvd.getId()) + 1);
+    }
+    return null;
   }
   
 }

@@ -33,6 +33,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
@@ -42,6 +43,7 @@ import org.hibernate.criterion.Restrictions;
  * @author jd
  */
 @Entity
+@XmlRootElement
 public class DvdProvider extends Searchable implements Serializable {
 
   private static final long serialVersionUID = 1L;

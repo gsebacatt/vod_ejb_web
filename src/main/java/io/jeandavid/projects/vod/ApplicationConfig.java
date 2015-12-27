@@ -51,6 +51,7 @@ public class ApplicationConfig extends Application {
     resources.add(io.jeandavid.projects.vod.service.DirectorFacadeREST.class);
     resources.add(io.jeandavid.projects.vod.service.DvdFacadeREST.class);
     resources.add(io.jeandavid.projects.vod.service.DvdOrderFacadeREST.class);
+    resources.add(io.jeandavid.projects.vod.service.DvdProviderFacadeREST.class);
     resources.add(io.jeandavid.projects.vod.service.SearchFacadeREST.class);
   }
   

@@ -34,6 +34,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -48,6 +49,17 @@ import org.hibernate.criterion.Restrictions;
 @Entity
 @XmlRootElement
 public class Dvd extends Searchable implements Serializable {
+
+  @ManyToOne
+  private DvdProvider dvdProvider;
+
+  public DvdProvider getDvdProvider() {
+    return dvdProvider;
+  }
+
+  public void setDvdProvider(DvdProvider dvdProvider) {
+    this.dvdProvider = dvdProvider;
+  }
 
   @ManyToMany(mappedBy = "dvds")
   @JsonIgnore

@@ -160,7 +160,7 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
     if(order.getInternalState() < DvdOrder.PAID) {
       order.pay();
       super.edit(order);
-      this.transformInSubOrders(order);   
+      this.transformIntoSubOrders(order);   
     }
     return order;
   }
@@ -172,6 +172,25 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
     DvdOrder order = super.find(id);
     return new HashMap<>();
   }  
+ 
+  @POST
+  @Path("{id}/shipment")
+  public void ship(@PathParam("id") Long id) {
+    DvdOrder dvdOrder = super.find(id);
+    if(dvdOrder.getInternalState() == DvdOrder.SHIPPED) {
+      return;    
+    }
+    boolean ship = true;
+    for(DvdOrder subOrder : dvdOrder.getSubDvdOrders()) {
+      if(subOrder.getInternalState() != DvdOrder.PACKAGED) {
+        ship = false;
+      }
+    }
+    if(ship) {
+      dvdOrder.switchInternalState(DvdOrder.SHIPPED);
+    }
+    super.edit(dvdOrder);
+  }  
   
   @Override
   protected EntityManager getEntityManager() {
@@ -179,7 +198,7 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   }
  
   @Asynchronous
-  public void transformInSubOrders(DvdOrder dvdOrder) {
+  public void transformIntoSubOrders(DvdOrder dvdOrder) {
     Session session = em.unwrap(Session.class);
     HashMap <DvdProvider, List<Dvd>> split = dvdOrder.sortByDvdProvider();
     for(Entry<DvdProvider, List<Dvd>> entry : split.entrySet()) {

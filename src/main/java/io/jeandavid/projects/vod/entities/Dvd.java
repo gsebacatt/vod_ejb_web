@@ -26,6 +26,7 @@ package io.jeandavid.projects.vod.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -35,6 +36,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -50,6 +52,23 @@ import org.hibernate.criterion.Restrictions;
 @XmlRootElement
 public class Dvd extends Searchable implements Serializable {
 
+  @JsonIgnore
+  @OneToMany(mappedBy = "dvd")
+  private Set<DvdOrderDvd> dvdOrderDvds = new HashSet<>();
+
+  public Set<DvdOrderDvd> getDvdOrderDvds() {
+    return dvdOrderDvds;
+  }
+
+  public void addDvdOrderDvd(DvdOrderDvd dvdOrderDvd) {
+    if(!dvdOrderDvds.contains(dvdOrderDvd)) {
+      this.dvdOrderDvds.add(dvdOrderDvd);
+    }
+    if(dvdOrderDvd.getDvd() != this) {
+      dvdOrderDvd.setDvd(this);  
+    }
+  }
+  
   @ManyToOne
   private DvdProvider dvdProvider;
 
@@ -61,14 +80,6 @@ public class Dvd extends Searchable implements Serializable {
     this.dvdProvider = dvdProvider;
   }
 
-  @JsonIgnore
-  @ManyToMany(mappedBy = "dvds")
-  private final Set<DvdOrder> dvdOrders = new HashSet<DvdOrder>();
-
-  public Set<DvdOrder> getDvdOrders() {
-    return dvdOrders;
-  }
-  
   private int quantity;
 
   public int getQuantity() {
@@ -87,13 +98,13 @@ public class Dvd extends Searchable implements Serializable {
     this.persons = persons;
   }
 
-  private Float price;
+  private float price;
 
-  public Float getPrice() {
+  public float getPrice() {
     return price;
   }
 
-  public void setPrice(Float price) {
+  public void setPrice(float price) {
     this.price = price;
   }
   

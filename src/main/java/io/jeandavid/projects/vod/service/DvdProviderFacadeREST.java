@@ -47,7 +47,7 @@ import javax.ws.rs.core.MediaType;
  * @author jd
  */
 @Stateless
-@Path("io.jeandavid.projects.vod.entities.dvdprovider")
+@Path("dvd_provider")
 public class DvdProviderFacadeREST extends AbstractFacade<DvdProvider> {
 
   @PersistenceContext(unitName = "io.jeandavid.projects_vod_war_1.0-SNAPSHOTPU")

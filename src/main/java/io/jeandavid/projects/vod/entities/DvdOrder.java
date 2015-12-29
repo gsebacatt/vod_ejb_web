@@ -23,31 +23,41 @@
  */
 package io.jeandavid.projects.vod.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;  
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.hibernate.Session;
 
 /**
  *
  * @author jd
  */
 @Entity
-@XmlRootElement
 public class DvdOrder implements Serializable {
+
+  
+  @OneToMany(mappedBy = "dvdOrder")
+  @JsonIgnore
+  private Set<DvdOrderDvd> dvdOrderDvds = new HashSet<>();
+
+  public synchronized Set<DvdOrderDvd> getDvdOrderDvds() {
+    return dvdOrderDvds;
+  }
 
   @ManyToOne
   private DvdOrder parentDvdOrder;
@@ -59,8 +69,7 @@ public class DvdOrder implements Serializable {
   public static final int PAID = 1;
   public static final int PENDING = 2;
   public static final int PACKAGED =  3;
-  public static final int RECEIVED = 4;
-  public static final int SHIPPED = 5;
+  public static final int SHIPPED = 4;
   
   private static final long serialVersionUID = 1L;
   
@@ -68,15 +77,23 @@ public class DvdOrder implements Serializable {
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  
   @OneToMany(mappedBy = "parentDvdOrder")
   @JsonIgnore
   private Set<DvdOrder> subDvdOrders = new HashSet<>();
 
-  public Set<DvdOrder> getSubDvdOrders() {
+  public synchronized Set<DvdOrder> getSubDvdOrders() {
     return subDvdOrders;
   }
 
+  public synchronized void addSubOrder(DvdOrder subOrder) {
+    if(!getSubDvdOrders().contains(subOrder)) {
+      getSubDvdOrders().add(subOrder);
+    }
+    if(subOrder.getParentDvdOrder() != this) {
+      subOrder.setParentDvdOrder(this);
+    }    
+  }
+  
   public DvdOrder getParentDvdOrder() {
     return parentDvdOrder;
   }
@@ -92,45 +109,50 @@ public class DvdOrder implements Serializable {
   public void setDvdProvider(DvdProvider dvdProvider) {
     this.dvdProvider = dvdProvider;
   }
-
-  public List<Dvd> getDvds() {
-    return dvds;
+  
+  public synchronized void addDvd(Dvd dvd, int quantity, Session session) {
+    DvdOrderDvd temp = new DvdOrderDvd();
+    temp.setQuantity(quantity);
+    dvd.addDvdOrderDvd(temp);
+    this.addDvdOrderDvd(temp);
+    temp.setPrice(temp.computePrice());
+    this.price += temp.computePrice();
+    session.save(temp);
   }
   
-  public void addDvd(Dvd dvd) {
-    if(!getDvds().contains(dvd)) {
-      for(int i = 0; i < dvd.getQuantity(); i++) 
-        getDvds().add(dvd);
+  public synchronized void addDvdOrderDvd(DvdOrderDvd dvdOrderDvd) {
+    if(!dvdOrderDvds.contains(dvdOrderDvd)) {
+      this.dvdOrderDvds.add(dvdOrderDvd);
     }
-    if(!dvd.getDvdOrders().contains(this)) {
-      dvd.getDvdOrders().add(this);
+    if(dvdOrderDvd.getDvdOrder() != this) {
+      dvdOrderDvd.setDvdOrder(this);  
     }
-  }
+  }  
   
-  public void removeDvd(Dvd dvd) {
-    for(int i = 0; i < dvd.getQuantity(); i++) {
-      if(getDvds().contains(dvd)) {
-        getDvds().remove(dvd);
+  public synchronized void removeDvd(Dvd dvd, int quantity, Session session) {
+    DvdOrderDvd temp = null;
+    for(DvdOrderDvd dvdOrderDvd : this.dvdOrderDvds) {
+      if(dvdOrderDvd.getDvd().equals(dvd)) {
+        temp = dvdOrderDvd;
       }
     }
-    if(dvd.getDvdOrders().contains(this)) {
-      dvd.getDvdOrders().remove(this);
-    }    
+    if(temp == null)
+      return;
+    
+    if(temp.getQuantity() <= quantity) {
+      session.delete(temp);
+    } else {
+      temp.setQuantity(temp.getQuantity() - quantity);
+      this.price -= (temp.getPrice() - temp.computePrice());
+      temp.setPrice(temp.computePrice());
+      session.save(temp);
+    }
   }
   
-  @ManyToMany
-  @JsonIgnore
-  private List<Dvd> dvds = new ArrayList<Dvd>();
 
-  public void setDvds(List<Dvd> dvds) {
-    this.dvds = dvds;
-  }
+  private Float price = new Float(0);
 
   public Float getPrice() {
-    Float price = new Float(0);
-    for(Dvd dvd : dvds) {
-      price += dvd.getPrice();
-    }
     return price;
   }
   
@@ -139,7 +161,6 @@ public class DvdOrder implements Serializable {
       case CREATED : return "created";
       case PAID : return "paid";
       case PENDING : return "pending";
-      case RECEIVED : return "received from the provider";
       case PACKAGED : return "packaged";
       case SHIPPED : return "shipped";
     }
@@ -193,33 +214,43 @@ public class DvdOrder implements Serializable {
     HashMap result = new HashMap<Dvd, Integer>() {
       @Override
       public Integer get(Object key) {
-          if(!containsKey(key))
-              return 0;
-          return super.get(key);
+        if(!containsKey(key))
+          return 0;
+        return super.get(key);
       }
     };
-    for(Dvd dvd : dvds) {
-      result.put(dvd, (Integer) result.get(dvd.getId()) + 1);
+    for(DvdOrderDvd dvdOrderDvd : dvdOrderDvds) {
+      result.put(dvdOrderDvd.getDvd(), (Integer) result.get(dvdOrderDvd.getDvd()) + dvdOrderDvd.getQuantity());
     }
-    return null;
+    return result;
   }
   
   public HashMap<DvdProvider, List<Dvd>> sortByDvdProvider() {
     HashMap<DvdProvider, List<Dvd>> result = new HashMap<DvdProvider, List<Dvd>>() {
       @Override
       public List get(Object key) {
-          if(!containsKey(key))
-              return new ArrayList<>();
-          return super.get(key);
+        if(!containsKey(key))
+          return new ArrayList<>();
+        return super.get(key);
       }    
     };
-    HashMap<Dvd, Integer> dvdOccurencies = this.countDvdsOccurencies();
-    for(Entry<Dvd, Integer> dvdOccurency : dvdOccurencies.entrySet()) {
-      Dvd temp = dvdOccurency.getKey();
-      temp.setQuantity(dvdOccurency.getValue());
-      result.get(temp.getDvdProvider()).add(temp);
+    for(DvdOrderDvd dvdOrderDvd : dvdOrderDvds) {
+      List<Dvd> dvds = result.get(dvdOrderDvd.getDvd().getDvdProvider());
+      dvds.add(dvdOrderDvd.getDvd());
+      result.put(dvdOrderDvd.getDvd().getDvdProvider(), dvds);
     }
     return result;
   }
   
+  public void computePrice() {
+    Float result = new Float(0);
+    for(DvdOrderDvd dvdOrderDvd : dvdOrderDvds) {
+      result += dvdOrderDvd.computePrice();
+    }
+    this.price = result;
+  }
+  
+  public void switchInternalState(int state) {
+    this.internalState = state;
+  }
 }

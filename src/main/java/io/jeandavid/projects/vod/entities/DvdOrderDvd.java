@@ -23,84 +23,66 @@
  */
 package io.jeandavid.projects.vod.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.xml.bind.annotation.XmlRootElement;
-import org.hibernate.Criteria;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Restrictions;
+import javax.persistence.ManyToOne;
 
 /**
  *
  * @author jd
  */
 @Entity
-@XmlRootElement
-public class DvdProvider extends Searchable implements Serializable {
+public class DvdOrderDvd implements Serializable {
 
   private static final long serialVersionUID = 1L;
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
 
-  private String name;
+  @ManyToOne
+  private Dvd dvd;
   
-  @JsonIgnore
-  @OneToMany(mappedBy = "dvdProvider")
-  private Set<Dvd> dvds = new HashSet<Dvd>();
+  @ManyToOne
+  @JsonBackReference("dvdOrderDvds")
+  private DvdOrder dvdOrder;
+  
+  private Integer quantity;
+  private Float price;
 
-  @JsonIgnore
-  @OneToMany(mappedBy = "dvdProvider")
-  private Set<DvdOrder> dvdOrders = new HashSet<DvdOrder>();
-
-  public void addDvd(Dvd dvd) {
-    if(!getDvds().contains(dvd)) {
-      getDvds().add(dvd);
-    }
-    if(dvd.getDvdProvider() != this) {
-      dvd.setDvdProvider(this);
-    }
+  public Float getPrice() {
+    return price;
   }
-  
-  public void addDvdOrder(DvdOrder dvdOrder) {
-    if(!getDvdOrders().contains(dvdOrder)) {
-      getDvdOrders().add(dvdOrder);
-    }
-    if(dvdOrder.getDvdProvider() != this) {
-      dvdOrder.setDvdProvider(this);
-    }    
+
+  public void setPrice(Float price) {
+    this.price = price;
   }
   
-  public Set<Dvd> getDvds() {
-    return dvds;
+  public Dvd getDvd() {
+    return dvd;
   }
 
-  public void setDvds(Set<Dvd> dvds) {
-    this.dvds = dvds;
+  public void setDvd(Dvd dvd) {
+    this.dvd = dvd;
   }
 
-  public Set<DvdOrder> getDvdOrders() {
-    return dvdOrders;
+  public DvdOrder getDvdOrder() {
+    return dvdOrder;
   }
 
-  public void setDvdOrders(Set<DvdOrder> dvdOrders) {
-    this.dvdOrders = dvdOrders;
-  }
-  
-  public String getName() {
-    return name;
+  public void setDvdOrder(DvdOrder dvdOrder) {
+    this.dvdOrder = dvdOrder;
   }
 
-  public void setName(String name) {
-    this.name = name;
+  public Integer getQuantity() {
+    return quantity;
+  }
+
+  public void setQuantity(Integer quantity) {
+    this.quantity = quantity;
   }
   
   public Long getId() {
@@ -120,10 +102,10 @@ public class DvdProvider extends Searchable implements Serializable {
 
   @Override
   public boolean equals(Object object) {
-    if (!(object instanceof DvdProvider)) {
+    if (!(object instanceof DvdOrderDvd)) {
       return false;
     }
-    DvdProvider other = (DvdProvider) object;
+    DvdOrderDvd other = (DvdOrderDvd) object;
     if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
       return false;
     }
@@ -132,12 +114,11 @@ public class DvdProvider extends Searchable implements Serializable {
 
   @Override
   public String toString() {
-    return "io.jeandavid.projects.vod.entities.DvdProvider[ id=" + id + " ]";
+    return "io.jeandavid.projects.vod.entities.DvdOrderDvd[ id=" + id + " ]";
   }
   
-  public static Criteria search(Criteria criteria, Map<String, Object> fields) {
-    criteria.add(Restrictions.ilike("name", fields.get("name").toString(), MatchMode.ANYWHERE));
-    return criteria;
+  public Float computePrice() {
+    return dvd.getPrice()*quantity;
   }
   
 }

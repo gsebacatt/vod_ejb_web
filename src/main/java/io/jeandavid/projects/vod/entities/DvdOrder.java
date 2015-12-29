@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +42,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import org.hibernate.Session;
 
 /**
@@ -64,6 +67,35 @@ public class DvdOrder implements Serializable {
 
   @ManyToOne
   private DvdProvider dvdProvider;
+  
+  private Date created;
+  private Date updated;
+
+  public Date getCreated() {
+    return created;
+  }
+
+  public void setCreated(Date created) {
+    this.created = created;
+  }
+
+  public Date getUpdated() {
+    return updated;
+  }
+
+  public void setUpdated(Date updated) {
+    this.updated = updated;
+  }
+
+  @PrePersist
+  protected void onCreate() {
+    created = new Date();
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    updated = new Date();
+  }
   
   public static final int CREATED = 0;
   public static final int PAID = 1;

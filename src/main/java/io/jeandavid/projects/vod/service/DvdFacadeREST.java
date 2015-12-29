@@ -24,12 +24,18 @@
 package io.jeandavid.projects.vod.service;
 
 import io.jeandavid.projects.vod.entities.Dvd;
+import io.jeandavid.projects.vod.entities.DvdOrder;
+import io.jeandavid.projects.vod.entities.DvdOrderDvd;
 import io.jeandavid.projects.vod.entities.Person;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import javax.ejb.EJB;
+import java.util.TreeSet;
 import javax.ejb.Stateless;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.Consumes;
@@ -41,6 +47,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 
 /**
  *
@@ -86,6 +97,28 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
     return super.find(id);
   }
 
+  @POST
+  @Path("{id}/arrival")
+  @Consumes(MediaType.APPLICATION_JSON) 
+  public void addArrival(@PathParam("id") Long id, Map<String, Object> requestBody) throws NamingException {
+    Dvd dvd = super.find(id);
+    dvd.setQuantity(dvd.getQuantity() + (int) requestBody.get("quantity"));
+    Session session = em.unwrap(Session.class);
+    Set<Long> ids = new TreeSet<>();
+    for(DvdOrderDvd dvdOrderDvd : dvd.getDvdOrderDvds()) {
+      ids.add(dvdOrderDvd.getDvdOrder().getId());
+    }
+    Criteria crit = session.createCriteria(DvdOrder.class);
+    List<DvdOrder> dvdOrders = crit.
+      add(Restrictions.in("id", ids.toArray())).
+      add(Restrictions.like("internalState", DvdOrder.PENDING)).
+      addOrder(Order.desc("created")).
+      list();
+    for(DvdOrder dvdOrder : dvdOrders) {
+      DvdOrderFacadeREST.doThePackaging(dvdOrder, session);
+    }
+  }
+  
   @GET
   @Path("{id}/author")
   @Produces(MediaType.APPLICATION_JSON)
@@ -122,7 +155,7 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
   public String countREST() {
     return String.valueOf(super.count());
   }
-
+  
   @Override
   protected EntityManager getEntityManager() {
     return em;

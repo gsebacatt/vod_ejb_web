@@ -196,17 +196,16 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
       }
       subOrder.computePrice();
       session.save(subOrder);
-      doThePackaging(subOrder);
+      doThePackaging(subOrder, session);
     }
     dvdOrder.getDvdOrderDvds().removeAll(dvdOrder.getDvdOrderDvds());
     session.save(dvdOrder);
   }
   
   @Asynchronous
-  public void doThePackaging(DvdOrder dvdOrder) {
+  public static void doThePackaging(DvdOrder dvdOrder, Session session) {
     if(dvdOrder.getInternalState() > DvdOrder.PENDING || dvdOrder.getInternalState() < DvdOrder.PAID)
       return;
-    Session session = this.getEntityManager().unwrap(Session.class);
     boolean pending = false;
     Transaction tr = session.beginTransaction();
     for(Entry<Dvd, Integer> entry : dvdOrder.countDvdsOccurencies().entrySet()) {

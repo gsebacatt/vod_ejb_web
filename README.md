@@ -22,9 +22,11 @@ The backend codebase was coded using NetBeans IDE but is meant to be used withou
 #### Wildfly server
 
 The project uses Wildfly as the Java EE container, you must download it, and
-follow the quickstart instruction to have it running in standalone mode and with
-an access to the admin console. Each time the backend is redeployed, the
-database is cleaned (it uses a `drop-and-create` java persistence strategy).
+follow the
+[quickstart](https://docs.jboss.org/author/display/WFLY9/Getting+Started+Guide)
+instruction to have it running in standalone mode and with an access to the
+admin console (with `bin/add-user.sh`). Each time the backend is redeployed, the database is cleaned (it
+uses a `drop-and-create` java persistence strategy).
 
 ##### Add MySQL as a data source to Wildfly
 [__source__](http://giordanomaestro.blogspot.fr/2015/02/install-jdbc-driver-on-wildfly.html)

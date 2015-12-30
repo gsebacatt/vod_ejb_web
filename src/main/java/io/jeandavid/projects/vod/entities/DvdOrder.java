@@ -23,18 +23,13 @@
  */
 package io.jeandavid.projects.vod.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;  
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -75,16 +70,8 @@ public class DvdOrder implements Serializable {
     return created;
   }
 
-  public void setCreated(Date created) {
-    this.created = created;
-  }
-
   public Date getUpdated() {
     return updated;
-  }
-
-  public void setUpdated(Date updated) {
-    this.updated = updated;
   }
 
   @PrePersist

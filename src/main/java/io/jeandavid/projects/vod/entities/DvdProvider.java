@@ -43,7 +43,6 @@ import org.hibernate.criterion.Restrictions;
  * @author jd
  */
 @Entity
-@XmlRootElement
 public class DvdProvider extends Searchable implements Serializable {
 
   private static final long serialVersionUID = 1L;

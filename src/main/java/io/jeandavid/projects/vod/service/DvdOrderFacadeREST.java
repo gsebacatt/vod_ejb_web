@@ -88,7 +88,7 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   }
 
   @GET
-  @Path("{id}/dvd_orders_dvd")
+  @Path("{id}/dvd_order_dvd")
   @Produces(MediaType.APPLICATION_JSON)
   public Set<DvdOrderDvd> getDvds(@PathParam("id") Long id) {
     DvdOrder order = super.find(id);

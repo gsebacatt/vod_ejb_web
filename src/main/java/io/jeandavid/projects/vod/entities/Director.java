@@ -35,7 +35,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Entity
 @DiscriminatorValue("DIRECTOR")
-@XmlRootElement
 public class Director extends Person implements Serializable {
 
   private static final long serialVersionUID = 1L;

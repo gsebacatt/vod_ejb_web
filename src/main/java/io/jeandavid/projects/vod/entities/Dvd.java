@@ -49,7 +49,6 @@ import org.hibernate.criterion.Restrictions;
  * @author jd
  */
 @Entity
-@XmlRootElement
 public class Dvd extends Searchable implements Serializable {
 
   @JsonIgnore

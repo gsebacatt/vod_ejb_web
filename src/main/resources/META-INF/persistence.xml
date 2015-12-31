@@ -4,7 +4,22 @@
     <jta-data-source>java:/vod_project</jta-data-source>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
+      <!--
+        These settings are only for development purpose, not for production
+      -->
       <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+        <property name="hibernate.dialect" 
+            value="org.hibernate.dialect.MySQLDialect" />
+        <property name="hibernate.jdbc.batch_size" value="50" />
+        <property name="hibernate.cache.use_second_level_cache" value="true" />
+        <property name="hibernate.cache.read_only" value="true" />
+        <property name="hibernate.cache.provider_class" 
+           value="org.hibernate.cache.EhCacheProvider" />
+        <property name="hibernate.generate_statistics" value="true" />
+        <property name="hibernate.transaction.manager_lookup_class"
+            value="org.hibernate.transaction.WeblogicTransactionManagerLookup" />
+        <property name="transaction.factory_class"
+           value="org.hibernate.transaction.JTATransactionFactory" />         
     </properties>
   </persistence-unit>
 </persistence>

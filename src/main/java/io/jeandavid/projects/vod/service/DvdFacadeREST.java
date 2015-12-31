@@ -49,6 +49,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -114,9 +115,10 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
       add(Restrictions.like("internalState", DvdOrder.PENDING)).
       addOrder(Order.desc("created")).
       list();
-    for(DvdOrder dvdOrder : dvdOrders) {
-      DvdOrderFacadeREST.doThePackaging(dvdOrder, session);
-    }
+//    for(DvdOrder dvdOrder : dvdOrders) {
+//      session = em.getEntityManagerFactory().unwrap(SessionFactory.class).openSession();
+//      DvdOrderFacadeREST.doThePackaging(dvdOrder, session);
+//    }
   }
   
   @GET

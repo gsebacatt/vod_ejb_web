@@ -34,8 +34,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.ejb.Asynchronous;
+import javax.ejb.Lock;
+import static javax.ejb.LockType.READ;
+import static javax.ejb.LockType.WRITE;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -47,6 +51,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 /**
@@ -159,8 +164,15 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   public DvdOrder pay(@PathParam("id") Long id, Map<String, Object> requestBody) {
     DvdOrder order = super.find(id);
     if(order.getInternalState() < DvdOrder.PAID) {
+      EntityManagerFactory emf = em.getEntityManagerFactory();    
+      Session session = emf.unwrap(SessionFactory.class).openSession();
+      Transaction tr = session.getTransaction();
+      tr.begin();
       order.pay();
-      super.edit(order);
+      session.merge(order);
+      tr.commit();
+      session.flush();
+      session.close();
       this.transformIntoSubOrders(order);   
     }
     return order;
@@ -200,49 +212,61 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
  
   @Asynchronous
   public void transformIntoSubOrders(DvdOrder dvdOrder) {
-    Session session = em.unwrap(Session.class);
     HashMap <DvdProvider, List<Dvd>> split = dvdOrder.sortByDvdProvider();
     for(Entry<DvdProvider, List<Dvd>> entry : split.entrySet()) {
+      EntityManagerFactory emf = em.getEntityManagerFactory();    
+      Session session = emf.unwrap(SessionFactory.class).openSession();
+      Transaction tr = session.beginTransaction();      
       DvdOrder subOrder = new DvdOrder();
+      subOrder.switchInternalState(DvdOrder.PAID);
+      session.persist(subOrder);
       subOrder.setDvdProvider(entry.getKey());
-      subOrder.switchInternalState(DvdOrder.PENDING);
       dvdOrder.addSubOrder(subOrder);
       for(Dvd dvd : entry.getValue()) {
-        for(DvdOrderDvd dvdOrderDvd : dvdOrder.getDvdOrderDvds()) {
+        for(DvdOrderDvd dvdOrderDvd : new HashSet<>(dvdOrder.getDvdOrderDvds())) {
           if(dvdOrderDvd.getDvd().equals(dvd)) {
             subOrder.addDvdOrderDvd(dvdOrderDvd);
+            session.saveOrUpdate(dvdOrderDvd);
+            dvdOrder.getDvdOrderDvds().remove(dvdOrderDvd);
+            em.unwrap(Session.class).save(dvdOrder);
           }
         }
       }
       subOrder.computePrice();
-      session.save(subOrder);
-      doThePackaging(subOrder, session);
+      session.persist(subOrder);
+      em.unwrap(Session.class).save(dvdOrder);
+      session.flush();
+      tr.commit();
+      session.close();
+      doThePackaging(subOrder);
     }
-    dvdOrder.getDvdOrderDvds().removeAll(dvdOrder.getDvdOrderDvds());
-    session.save(dvdOrder);
   }
   
   @Asynchronous
-  public static void doThePackaging(DvdOrder dvdOrder, Session session) {
+  public void doThePackaging(DvdOrder dvdOrder) {
     if(dvdOrder.getInternalState() > DvdOrder.PENDING || dvdOrder.getInternalState() < DvdOrder.PAID)
       return;
-    boolean pending = false;
+    EntityManagerFactory emf = em.getEntityManagerFactory();    
+    Session session = emf.unwrap(SessionFactory.class).openSession();
+    dvdOrder.switchInternalState(DvdOrder.PACKAGED);
     Transaction tr = session.beginTransaction();
     for(Entry<Dvd, Integer> entry : dvdOrder.countDvdsOccurencies().entrySet()) {
       Dvd dvd = entry.getKey();
+      session.refresh(dvd);
       Integer occurenciesNumber = entry.getValue();
       if(dvd.getQuantity() >= occurenciesNumber) {
         dvd.setQuantity(dvd.getQuantity() - occurenciesNumber);
+        session.saveOrUpdate(dvd);
       } else {
-        pending = true;
+        tr.rollback();
+        dvdOrder.switchInternalState(DvdOrder.PENDING);
+        break;
       }
     }
-    if(pending) {
-      dvdOrder.switchInternalState(DvdOrder.PENDING);
-    } else {
-      dvdOrder.switchInternalState(DvdOrder.PACKAGED);
-    }
-    session.save(dvdOrder);
-    tr.commit();
+    session.flush();
+    if(!tr.wasRolledBack() && !tr.wasCommitted())
+      tr.commit();
+
+    session.close();
   }
 }

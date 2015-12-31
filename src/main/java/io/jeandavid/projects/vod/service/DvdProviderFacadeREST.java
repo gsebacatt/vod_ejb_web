@@ -41,6 +41,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.hibernate.Session;
 
 /**
  *
@@ -114,7 +115,9 @@ public class DvdProviderFacadeREST extends AbstractFacade<DvdProvider> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     DvdProvider provider = super.find(id);
-    provider.addDvd(dvd.reload(em));
+    Session session = em.unwrap(Session.class);
+    session.refresh(dvd);
+    provider.addDvd(dvd);
   }    
 
   @GET

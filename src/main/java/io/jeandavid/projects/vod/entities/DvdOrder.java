@@ -53,7 +53,7 @@ public class DvdOrder implements Serializable {
   @JsonIgnore
   private Set<DvdOrderDvd> dvdOrderDvds = new HashSet<>();
 
-  public synchronized Set<DvdOrderDvd> getDvdOrderDvds() {
+  public  Set<DvdOrderDvd> getDvdOrderDvds() {
     return dvdOrderDvds;
   }
 
@@ -100,11 +100,11 @@ public class DvdOrder implements Serializable {
   @JsonIgnore
   private Set<DvdOrder> subDvdOrders = new HashSet<>();
 
-  public synchronized Set<DvdOrder> getSubDvdOrders() {
+  public Set<DvdOrder> getSubDvdOrders() {
     return subDvdOrders;
   }
 
-  public synchronized void addSubOrder(DvdOrder subOrder) {
+  public void addSubOrder(DvdOrder subOrder) {
     if(!getSubDvdOrders().contains(subOrder)) {
       getSubDvdOrders().add(subOrder);
     }
@@ -129,17 +129,20 @@ public class DvdOrder implements Serializable {
     this.dvdProvider = dvdProvider;
   }
   
-  public synchronized void addDvd(Dvd dvd, int quantity, Session session) {
+  public void addDvd(Dvd dvd, int quantity, Session session) {
     DvdOrderDvd temp = new DvdOrderDvd();
     temp.setQuantity(quantity);
+    session.persist(temp);
     dvd.addDvdOrderDvd(temp);
     this.addDvdOrderDvd(temp);
     temp.setPrice(temp.computePrice());
     this.price += temp.computePrice();
-    session.save(temp);
+    session.merge(temp);
+    session.merge(this);
+    session.merge(dvd);
   }
   
-  public synchronized void addDvdOrderDvd(DvdOrderDvd dvdOrderDvd) {
+  public void addDvdOrderDvd(DvdOrderDvd dvdOrderDvd) {
     if(!dvdOrderDvds.contains(dvdOrderDvd)) {
       this.dvdOrderDvds.add(dvdOrderDvd);
     }
@@ -148,7 +151,7 @@ public class DvdOrder implements Serializable {
     }
   }  
   
-  public synchronized void removeDvd(Dvd dvd, int quantity, Session session) {
+  public void removeDvd(Dvd dvd, int quantity, Session session) {
     DvdOrderDvd temp = null;
     for(DvdOrderDvd dvdOrderDvd : this.dvdOrderDvds) {
       if(dvdOrderDvd.getDvd().equals(dvd)) {
@@ -164,7 +167,7 @@ public class DvdOrder implements Serializable {
       temp.setQuantity(temp.getQuantity() - quantity);
       this.price -= (temp.getPrice() - temp.computePrice());
       temp.setPrice(temp.computePrice());
-      session.save(temp);
+      session.merge(temp);
     }
   }
   

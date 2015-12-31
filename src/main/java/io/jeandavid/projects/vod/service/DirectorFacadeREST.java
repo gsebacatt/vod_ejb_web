@@ -40,6 +40,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.hibernate.Session;
 
 /**
  *
@@ -90,7 +91,10 @@ public class DirectorFacadeREST extends AbstractFacade<Director> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     Director director = super.find(id);
-    director.addDvd(dvd.reload(em));
+    Session session = em.unwrap(Session.class);
+    session.refresh(dvd);
+    director.addDvd(dvd);
+    session.close();
   }
 
   @GET

@@ -40,6 +40,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.hibernate.Session;
 
 /**
  *
@@ -90,7 +91,10 @@ public class AuthorFacadeREST extends AbstractFacade<Author> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     Author author = super.find(id);
-    author.addDvd(dvd.reload(em));
+    Session session = em.unwrap(Session.class);
+    session.refresh(dvd);
+    author.addDvd(dvd);
+    session.close();
   }
 
   @GET

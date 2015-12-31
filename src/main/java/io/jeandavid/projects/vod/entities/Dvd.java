@@ -194,11 +194,4 @@ public class Dvd extends Searchable implements Serializable {
     return criteria;
   }
  
-  public Dvd reload(EntityManager em) {
-    Session session = em.unwrap(Session.class);
-    session.beginTransaction();
-    Dvd dvd = (Dvd) session.get(Dvd.class, this.id);
-    session.getTransaction().commit();
-    return dvd;
-  }
 }

@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -183,7 +184,7 @@ public class DvdOrder implements Serializable {
       case CREATED : return "created";
       case PAID : return "paid";
       case PENDING : return "pending";
-      case PACKAGED : return "packaged";
+      case PACKAGED : return "packaging";
       case SHIPPED : return "shipped";
     }
     return null;
@@ -271,6 +272,11 @@ public class DvdOrder implements Serializable {
     }
     this.price = result;
   }
+  
+  @JsonIgnore
+  public TreeSet<DvdOrderDvd> getSortedDvdOrderDvds() {
+    return new TreeSet<>(this.dvdOrderDvds);
+  }  
   
   public void switchInternalState(int state) {
     this.internalState = state;

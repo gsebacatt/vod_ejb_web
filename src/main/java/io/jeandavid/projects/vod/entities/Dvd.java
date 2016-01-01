@@ -26,20 +26,16 @@ package io.jeandavid.projects.vod.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.annotations.Where;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
@@ -50,7 +46,7 @@ import org.hibernate.criterion.Restrictions;
  */
 @Entity
 public class Dvd extends Searchable implements Serializable {
-
+  
   @JsonIgnore
   @OneToMany(mappedBy = "dvd")
   private Set<DvdOrderDvd> dvdOrderDvds = new HashSet<>();
@@ -189,7 +185,7 @@ public class Dvd extends Searchable implements Serializable {
   }
 
   public static Criteria search(Criteria criteria, Map<String, Object> fields) {
-    if(fields.get("title") != null) 
+    if(fields.get("title") != null)
       criteria.add(Restrictions.ilike("title", fields.get("title").toString(), MatchMode.ANYWHERE)); 
     return criteria;
   }

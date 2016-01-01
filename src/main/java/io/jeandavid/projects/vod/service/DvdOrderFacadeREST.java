@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 import javax.ejb.Asynchronous;
 import javax.ejb.Lock;
 import static javax.ejb.LockType.READ;
@@ -50,7 +51,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import org.hibernate.LockMode;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
+import org.hibernate.Session.LockRequest;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
@@ -65,6 +69,15 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   @PersistenceContext(unitName = "io.jeandavid.projects_vod_war_1.0-SNAPSHOTPU")
   private EntityManager em;
 
+  private SessionFactory sessionFactory = null;
+  
+  public SessionFactory getSessionFactory() {
+    if(sessionFactory == null) {
+      sessionFactory = em.getEntityManagerFactory().unwrap(SessionFactory.class);
+    }
+    return sessionFactory;
+  }
+  
   public DvdOrderFacadeREST() {
     super(DvdOrder.class);
   }
@@ -163,16 +176,15 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   @Consumes(MediaType.APPLICATION_JSON)
   public DvdOrder pay(@PathParam("id") Long id, Map<String, Object> requestBody) {
     DvdOrder order = super.find(id);
-    if(order.getInternalState() < DvdOrder.PAID) {
-      EntityManagerFactory emf = em.getEntityManagerFactory();    
-      Session session = emf.unwrap(SessionFactory.class).openSession();
+    if(order.getInternalState() < DvdOrder.PAID) {  
+      Session session = this.getSessionFactory().openSession();
       Transaction tr = session.getTransaction();
       tr.begin();
       order.pay();
-      session.merge(order);
-      tr.commit();
+      session.saveOrUpdate(session.merge(order));
       session.flush();
-      session.close();
+      session.close();      
+      tr.commit();
       this.transformIntoSubOrders(order);   
     }
     return order;
@@ -212,13 +224,14 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
  
   @Asynchronous
   public void transformIntoSubOrders(DvdOrder dvdOrder) {
+    Session rootSession = em.unwrap(Session.class);
+    rootSession.refresh(dvdOrder);
     HashMap <DvdProvider, List<Dvd>> split = dvdOrder.sortByDvdProvider();
-    for(Entry<DvdProvider, List<Dvd>> entry : split.entrySet()) {
-      EntityManagerFactory emf = em.getEntityManagerFactory();    
-      Session session = emf.unwrap(SessionFactory.class).openSession();
+    for(Entry<DvdProvider, List<Dvd>> entry : split.entrySet()) { 
+      Session session = this.getSessionFactory().openSession();
       Transaction tr = session.beginTransaction();      
       DvdOrder subOrder = new DvdOrder();
-      subOrder.switchInternalState(DvdOrder.PAID);
+      subOrder.switchInternalState(DvdOrder.PENDING);
       session.persist(subOrder);
       subOrder.setDvdProvider(entry.getKey());
       dvdOrder.addSubOrder(subOrder);
@@ -226,17 +239,16 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
         for(DvdOrderDvd dvdOrderDvd : new HashSet<>(dvdOrder.getDvdOrderDvds())) {
           if(dvdOrderDvd.getDvd().equals(dvd)) {
             subOrder.addDvdOrderDvd(dvdOrderDvd);
-            session.saveOrUpdate(dvdOrderDvd);
+            session.saveOrUpdate(session.merge(dvdOrderDvd));
             dvdOrder.getDvdOrderDvds().remove(dvdOrderDvd);
-            em.unwrap(Session.class).save(dvdOrder);
+            rootSession.save(dvdOrder);
           }
         }
       }
       subOrder.computePrice();
       session.persist(subOrder);
-      em.unwrap(Session.class).save(dvdOrder);
       session.flush();
-      tr.commit();
+      tr.commit();      
       session.close();
       doThePackaging(subOrder);
     }
@@ -246,27 +258,29 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   public void doThePackaging(DvdOrder dvdOrder) {
     if(dvdOrder.getInternalState() > DvdOrder.PENDING || dvdOrder.getInternalState() < DvdOrder.PAID)
       return;
-    EntityManagerFactory emf = em.getEntityManagerFactory();    
-    Session session = emf.unwrap(SessionFactory.class).openSession();
+    boolean pending = false;
+    Session session = this.getSessionFactory().openSession();
+    session.refresh(dvdOrder);
     dvdOrder.switchInternalState(DvdOrder.PACKAGED);
     Transaction tr = session.beginTransaction();
-    for(Entry<Dvd, Integer> entry : dvdOrder.countDvdsOccurencies().entrySet()) {
-      Dvd dvd = entry.getKey();
-      session.refresh(dvd);
-      Integer occurenciesNumber = entry.getValue();
+    for(DvdOrderDvd dvdOrderDvd : dvdOrder.getDvdOrderDvds()) {
+      Dvd dvd = (Dvd) session.load(Dvd.class, dvdOrderDvd.getDvd().getId());      
+      LockRequest lockRequest = session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.NO_WAIT));
+      lockRequest.lock(dvd);
+      Integer occurenciesNumber = dvdOrderDvd.getQuantity();
       if(dvd.getQuantity() >= occurenciesNumber) {
         dvd.setQuantity(dvd.getQuantity() - occurenciesNumber);
-        session.saveOrUpdate(dvd);
-      } else {
-        tr.rollback();
-        dvdOrder.switchInternalState(DvdOrder.PENDING);
+        session.saveOrUpdate(session.merge(dvd));
+      } else {  
+        pending = true;
         break;
       }
     }
-    session.flush();
-    if(!tr.wasRolledBack() && !tr.wasCommitted())
-      tr.commit();
-
+    if(!pending) {
+      session.saveOrUpdate(dvdOrder);
+      session.flush();
+      tr.commit();      
+    }
     session.close();
   }
 }

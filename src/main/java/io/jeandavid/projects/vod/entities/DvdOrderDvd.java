@@ -120,5 +120,20 @@ public class DvdOrderDvd implements Serializable {
   public Float computePrice() {
     return dvd.getPrice()*quantity;
   }
+
+//  @Override
+//  public int compareTo(Object o) {
+//    if(o instanceof DvdOrderDvd) {
+//      return -1;
+//    } else {
+//      Dvd toCompare = ((DvdOrderDvd) o).getDvd();
+//      if(toCompare.getId() > this.getDvd().getId()) {
+//        return -1;
+//      } else if(toCompare.getId() < this.getDvd().getId()) {
+//        return 1;
+//      }
+//    }
+//    return 0;
+//  }
   
 }

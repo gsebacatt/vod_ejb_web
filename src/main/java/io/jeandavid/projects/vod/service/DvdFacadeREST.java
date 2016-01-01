@@ -27,14 +27,13 @@ import io.jeandavid.projects.vod.entities.Dvd;
 import io.jeandavid.projects.vod.entities.DvdOrder;
 import io.jeandavid.projects.vod.entities.DvdOrderDvd;
 import io.jeandavid.projects.vod.entities.Person;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -49,8 +48,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -62,6 +59,9 @@ import org.hibernate.criterion.Restrictions;
 @Path("dvd")
 public class DvdFacadeREST extends AbstractFacade<Dvd> {
 
+  @EJB
+  private DvdOrderFacadeREST dvdOrderSessioBean;
+  
   @PersistenceContext(unitName = "io.jeandavid.projects_vod_war_1.0-SNAPSHOTPU")
   private EntityManager em;
 
@@ -115,10 +115,9 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
       add(Restrictions.like("internalState", DvdOrder.PENDING)).
       addOrder(Order.desc("created")).
       list();
-//    for(DvdOrder dvdOrder : dvdOrders) {
-//      session = em.getEntityManagerFactory().unwrap(SessionFactory.class).openSession();
-//      DvdOrderFacadeREST.doThePackaging(dvdOrder, session);
-//    }
+    for(DvdOrder dvdOrder : dvdOrders) {
+      dvdOrderSessioBean.doThePackaging(dvdOrder);
+    }
   }
   
   @GET

@@ -11,13 +11,7 @@
         <property name="hibernate.dialect" 
             value="org.hibernate.dialect.MySQLDialect" />
         <property name="hibernate.jdbc.batch_size" value="50" />
-        <property name="hibernate.cache.use_second_level_cache" value="true" />
-        <property name="hibernate.cache.read_only" value="true" />
-        <property name="hibernate.cache.provider_class" 
-           value="org.hibernate.cache.EhCacheProvider" />
-        <property name="hibernate.generate_statistics" value="true" />
-        <property name="hibernate.transaction.manager_lookup_class"
-            value="org.hibernate.transaction.WeblogicTransactionManagerLookup" />
+        <property name="hibernate.connection.autocommit" value="false"/>
         <property name="transaction.factory_class"
            value="org.hibernate.transaction.JTATransactionFactory" />         
     </properties>

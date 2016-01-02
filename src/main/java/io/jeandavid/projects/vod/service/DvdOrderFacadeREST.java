@@ -118,6 +118,8 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     DvdOrder order = super.find(id);
+    if(order.getInternalState() != DvdOrder.CREATED)
+      return;
     Session session = em.unwrap(Session.class);
     int quantity = dvd.getQuantity();
     session.refresh(dvd);

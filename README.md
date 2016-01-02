@@ -71,4 +71,23 @@ Run `mvn wildfly:undeploy -fae` to undeploy the app, note that `mvn clean instal
 `Comming soon`
 
 ## How to use it
-`Comming soon`
+
+### Ruby scripts
+
+The project contains some ruby scripts to use the backend, below are some
+instruction to get it running.
+
+- you need to have `ruby >= 2.0` installed
+- if you do not have bundle installed, `gem install bundle`
+- go to `$PROJECT_ROOT$/src/main/ruby/api_client`
+- `bundle install`
+- open a new terminal in the same directory
+- `sidekiq -r ./api_client.rb`
+
+#### Seed the database 
+
+- a script that generates randomized data is provided in ruby, just type `ruby seed_db.rb` with Sidekiq running.
+
+#### Run the load_test
+
+- the load test is intended to stress the server, creating deadlock likely situations and DB connections pool shortage. Type `ruby load_test.rb` with Sidekiq running.

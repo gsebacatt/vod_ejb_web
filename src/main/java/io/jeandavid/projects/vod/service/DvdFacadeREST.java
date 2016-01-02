@@ -60,7 +60,7 @@ import org.hibernate.criterion.Restrictions;
 public class DvdFacadeREST extends AbstractFacade<Dvd> {
 
   @EJB
-  private DvdOrderFacadeREST dvdOrderSessioBean;
+  private DvdOrderFacadeREST dvdOrderSessionBean;
   
   @PersistenceContext(unitName = "io.jeandavid.projects_vod_war_1.0-SNAPSHOTPU")
   private EntityManager em;
@@ -116,7 +116,10 @@ public class DvdFacadeREST extends AbstractFacade<Dvd> {
       addOrder(Order.desc("created")).
       list();
     for(DvdOrder dvdOrder : dvdOrders) {
-      dvdOrderSessioBean.doThePackaging(dvdOrder);
+      dvdOrderSessionBean.doThePackaging(dvdOrder);
+      session.merge(dvdOrder);
+      session.flush();
+      dvdOrderSessionBean.refreshParentDvdOrderStatus(dvdOrder.getParentDvdOrder());
     }
   }
   

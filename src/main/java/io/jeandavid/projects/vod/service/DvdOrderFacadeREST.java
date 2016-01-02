@@ -252,11 +252,11 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
       session.close();
       doThePackaging(subOrder);
     }
+    this.refreshParentDvdOrderStatus(dvdOrder);
   }
   
-  @Asynchronous
   public void doThePackaging(DvdOrder dvdOrder) {
-    if(dvdOrder.getInternalState() > DvdOrder.PENDING || dvdOrder.getInternalState() < DvdOrder.PAID)
+    if(dvdOrder.getInternalState() != DvdOrder.PENDING)
       return;
     boolean pending = false;
     Session session = this.getSessionFactory().openSession();
@@ -282,6 +282,26 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
       session.flush();
       tr.commit();      
     } 
+    session.close();
+  }
+  
+  @Asynchronous
+  public void refreshParentDvdOrderStatus(DvdOrder dvdOrder) {
+    if(dvdOrder.getParentDvdOrder() != null)
+      return;
+    Session session = this.getSessionFactory().openSession();
+    Transaction tr = session.beginTransaction();
+    session.refresh(dvdOrder);
+    dvdOrder.switchInternalState(DvdOrder.PACKAGED);
+    for(DvdOrder subOrder : dvdOrder.getSubDvdOrders()) {
+      session.refresh(subOrder);
+      if(subOrder.getInternalState() == DvdOrder.PENDING) {
+        dvdOrder.switchInternalState(DvdOrder.PENDING);
+        break;
+      }
+    }
+    session.flush();
+    tr.commit();
     session.close();
   }
 }

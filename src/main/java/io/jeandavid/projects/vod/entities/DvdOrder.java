@@ -275,7 +275,11 @@ public class DvdOrder implements Serializable {
   
   @JsonIgnore
   public TreeSet<DvdOrderDvd> getSortedDvdOrderDvds() {
-    return new TreeSet<>(this.dvdOrderDvds);
+    TreeSet<DvdOrderDvd> result = new TreeSet<>();
+    for(DvdOrderDvd dvdOrderDvd : this.getDvdOrderDvds()) {
+      result.add(dvdOrderDvd);
+    }
+    return result;
   }  
   
   public void switchInternalState(int state) {

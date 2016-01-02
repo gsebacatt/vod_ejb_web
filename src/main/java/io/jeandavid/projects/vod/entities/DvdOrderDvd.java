@@ -36,7 +36,7 @@ import javax.persistence.ManyToOne;
  * @author jd
  */
 @Entity
-public class DvdOrderDvd implements Serializable {
+public class DvdOrderDvd implements Serializable, Comparable<DvdOrderDvd> {
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -121,19 +121,20 @@ public class DvdOrderDvd implements Serializable {
     return dvd.getPrice()*quantity;
   }
 
-//  @Override
-//  public int compareTo(Object o) {
-//    if(o instanceof DvdOrderDvd) {
-//      return -1;
-//    } else {
-//      Dvd toCompare = ((DvdOrderDvd) o).getDvd();
-//      if(toCompare.getId() > this.getDvd().getId()) {
-//        return -1;
-//      } else if(toCompare.getId() < this.getDvd().getId()) {
-//        return 1;
-//      }
-//    }
-//    return 0;
-//  }
-  
+  @Override
+  public int compareTo(DvdOrderDvd o) {
+    if(o.getDvd().getId() > this.getDvd().getId()) {
+      return -1;
+    } else if(o.getDvd().getId() < this.getDvd().getId()) {
+      return 1;
+    } else {
+      if(o.getId() == this.id) {
+        return 0;
+      } else if(o.getId() < this.id) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }
+  }
 }

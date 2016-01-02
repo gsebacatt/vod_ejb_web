@@ -183,8 +183,8 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
       order.pay();
       session.saveOrUpdate(session.merge(order));
       session.flush();
-      session.close();      
       tr.commit();
+      session.close();    
       this.transformIntoSubOrders(order);   
     }
     return order;
@@ -263,9 +263,10 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
     session.refresh(dvdOrder);
     dvdOrder.switchInternalState(DvdOrder.PACKAGED);
     Transaction tr = session.beginTransaction();
-    for(DvdOrderDvd dvdOrderDvd : dvdOrder.getDvdOrderDvds()) {
+    TreeSet<DvdOrderDvd> sortedDvdOrderDvds = dvdOrder.getSortedDvdOrderDvds();
+    for(DvdOrderDvd dvdOrderDvd : sortedDvdOrderDvds) {
       Dvd dvd = (Dvd) session.load(Dvd.class, dvdOrderDvd.getDvd().getId());      
-      LockRequest lockRequest = session.buildLockRequest(new LockOptions(LockMode.PESSIMISTIC_WRITE).setTimeOut(LockOptions.NO_WAIT));
+      LockRequest lockRequest = session.buildLockRequest(LockOptions.UPGRADE);
       lockRequest.lock(dvd);
       Integer occurenciesNumber = dvdOrderDvd.getQuantity();
       if(dvd.getQuantity() >= occurenciesNumber) {
@@ -280,7 +281,7 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
       session.saveOrUpdate(dvdOrder);
       session.flush();
       tr.commit();      
-    }
+    } 
     session.close();
   }
 }

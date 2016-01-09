@@ -41,6 +41,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 /**
  *
@@ -53,6 +55,15 @@ public class DirectorFacadeREST extends AbstractFacade<Director> {
   @PersistenceContext(unitName = "io.jeandavid.projects_vod_war_1.0-SNAPSHOTPU")
   private EntityManager em;
 
+  private SessionFactory sessionFactory = null;
+  
+  public SessionFactory getSessionFactory() {
+    if(sessionFactory == null) {
+      sessionFactory = em.getEntityManagerFactory().unwrap(SessionFactory.class);
+    }
+    return sessionFactory;
+  }  
+  
   public DirectorFacadeREST() {
     super(Director.class);
   }
@@ -91,9 +102,12 @@ public class DirectorFacadeREST extends AbstractFacade<Director> {
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
     Director director = super.find(id);
-    Session session = em.unwrap(Session.class);
+    Session session = this.getSessionFactory().openSession();
+    Transaction tr = session.beginTransaction();
     session.refresh(dvd);
     director.addDvd(dvd);
+    session.flush();
+    tr.commit();
     session.close();
   }
 

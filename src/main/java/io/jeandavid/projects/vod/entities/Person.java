@@ -45,7 +45,7 @@ import org.hibernate.criterion.Restrictions;
 /**
  *
  * @author jd
- */
+ */ 
 @Entity
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="personType", discriminatorType=DiscriminatorType.STRING )

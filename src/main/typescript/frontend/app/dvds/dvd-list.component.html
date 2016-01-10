@@ -1,0 +1,9 @@
+<h2>Dvds</h2>
+<ul>
+  <li *ngFor="#dvd of dvds"
+     (click)="onSelect(dvd)">
+    <span class="badge">{{dvd.quantity}}</span>
+    {{dvd.title}}
+  </li>
+</ul>
+<dvd-detail [dvd]="selectedDvd"></dvd-detail>

@@ -3,3 +3,6 @@ target/
 nb-configuration.xml
 node_modules/
 style*.css
+*.map
+*.js*
+!*.json

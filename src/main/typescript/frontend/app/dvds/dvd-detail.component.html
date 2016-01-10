@@ -1,0 +1,21 @@
+<div *ngIf="dvd">
+  <h3>"{{dvd.title}}"</h3>
+  <ul>
+    <li><label>Price</label> {{dvd.price}}</li>
+    <li><label>Quantity</label> {{dvd.quantity}}</li>
+    <li><label>Major</label> {{dvd.dvdProvider.name}}</li>
+  </ul>
+  <h4>Authors</h4>
+  <ul>
+    <li *ngFor="#author of dvd.authors"
+      (click)="goToPerson(author.id, 'author')"
+     >{{author.firstName}} {{author.lastName | uppercase}} </li>
+  </ul>
+  <h4>Director</h4>
+  <ul>
+    <li *ngFor="#director of dvd.directors"
+      (click)="goToPerson(director.id, 'director')"
+     >{{director.firstName}} {{director.lastName | uppercase}} </li>
+  </ul>
+  
+</div>

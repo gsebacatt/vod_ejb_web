@@ -1,0 +1,10 @@
+<div *ngIf="person">
+  <h3>{{person.firstName}} {{person.lastName | uppercase}}</h3>
+  <h4>Dvds involved in</h4>
+  <ul>
+    <li *ngFor="#dvd of person.dvds" 
+      (click)="goToDvd(dvd.id)"
+    >"{{dvd.title}}" ({{dvd.dvdProvider.name}}) </li>
+  </ul>
+  
+</div>

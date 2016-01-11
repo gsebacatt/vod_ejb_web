@@ -134,14 +134,16 @@ public class DvdOrder implements Serializable {
   public void addDvd(Dvd dvd, int quantity, Session session) {
     DvdOrderDvd temp = new DvdOrderDvd();
     temp.setQuantity(quantity);
-    session.persist(temp);
+    session.persist(temp);        
     dvd.addDvdOrderDvd(temp);
     this.addDvdOrderDvd(temp);
-    temp.setPrice(temp.computePrice());
-    this.price += temp.computePrice();
-    session.merge(temp);
-    session.merge(this);
-    session.merge(dvd);
+    session.saveOrUpdate(session.merge(temp));
+    session.saveOrUpdate(session.merge(dvd));   
+    float price = temp.computePrice();
+    temp.setPrice(price);
+    session.saveOrUpdate(session.merge(temp));
+    this.price = new Float(this.price + price);    
+    session.saveOrUpdate(session.merge(this));
   }
   
   public void addDvdOrderDvd(DvdOrderDvd dvdOrderDvd) {
@@ -285,5 +287,9 @@ public class DvdOrder implements Serializable {
   
   public void switchInternalState(int state) {
     this.internalState = state;
+  }
+
+  public void updatePrice(Float price) {
+    this.price = price;
   }
 }

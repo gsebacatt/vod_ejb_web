@@ -117,13 +117,32 @@ public class DvdOrderFacadeREST extends AbstractFacade<DvdOrder> {
   @Path("{id}/dvd")
   @Consumes(MediaType.APPLICATION_JSON)
   public void addDvd(@PathParam("id") Long id, Dvd dvd) {
-    DvdOrder order = super.find(id);
-    if(order.getInternalState() != DvdOrder.CREATED)
+    Session session = this.getSessionFactory().openSession();
+    DvdOrder order = (DvdOrder) session.load(DvdOrder.class, id, LockMode.PESSIMISTIC_WRITE);    
+    if(order.getInternalState() != DvdOrder.CREATED) {
+      session.close();
       return;
-    Session session = em.unwrap(Session.class);
+    }  
     int quantity = dvd.getQuantity();
-    session.refresh(dvd);
-    order.addDvd(dvd, quantity, session);
+    session.refresh(dvd);   
+    Transaction tr = session.beginTransaction();
+     
+    session.refresh(order);
+    DvdOrderDvd temp = new DvdOrderDvd();
+    temp.setQuantity(quantity);
+    session.persist(temp);        
+    dvd.addDvdOrderDvd(temp);
+    order.addDvdOrderDvd(temp);
+    session.saveOrUpdate(temp);
+    session.saveOrUpdate(dvd);   
+    float price = temp.computePrice();
+    temp.setPrice(price);
+    session.saveOrUpdate(temp);
+    order.updatePrice(order.getPrice() + price);    
+    session.save(session.merge(order));
+    session.flush();
+    tr.commit();
+    session.close();
   }    
 
   @DELETE

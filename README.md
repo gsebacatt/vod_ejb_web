@@ -224,3 +224,9 @@ instruction to get it running.
 
 ## Todos
 
+- Add a User model to have several authorization levels (e.g. : managers, customers).
+- Security
+- Improve frontend style
+- Implement back-office frontend
+- Implement the missing feature of customer frontend (search, dvd providers, authors, directors lists)
+

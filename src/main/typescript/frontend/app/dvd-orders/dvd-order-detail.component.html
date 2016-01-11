@@ -7,7 +7,7 @@
     <li><label>Last update on </label> {{dvdOrder.updated | date}}</li>
   </ul>
   <h4>Details</h4>
-  <div *ngIf="subDvdOrders">
+  <div *ngIf="dvdOrder.externalState != 'created'">
     <div *ngFor="#subDvdOrder of subDvdOrders">
       <hr/>
       <div >
@@ -25,13 +25,11 @@
       <span><label>Sub total</label> {{subDvdOrder.price | currency:'USD':false}}</span>
     </div>
   </div>
-  <div *ngIf="subDvdOrders == undefined">
-    <div *ngFor="#dvdOrderDvd of dvdOrder.dvdOrderDvds">
-      <h5>Dvds ordered</h5>
-      <li *ngFor="#dvdOrderDvd of subDvdOrder.dvdOrderDvds">
-          {{dvdOrderDvd.dvd.title}} at {{dvdOrderDvd.dvd.price | currency:'USD':false}}, quantity  {{dvdOrderDvd.quantity}}
-      </li>      
-    </div>
-    <button type="button" name="pay" (click)="doThePayment"></button>
+  <div *ngIf="dvdOrder.externalState == 'created'">
+    <h5>Dvds ordered</h5>
+    <li *ngFor="#dvdOrderDvd of dvdOrder.dvdOrderDvds">
+      {{dvdOrderDvd.dvd.title}} at {{dvdOrderDvd.dvd.price | currency:'USD':false}}, quantity  {{dvdOrderDvd.quantity}}  
+    </li>
+    <button type="button" name="pay" (click)="doThePayment()">Checkout</button>
   </div>
 </div>

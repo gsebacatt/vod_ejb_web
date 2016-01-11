@@ -16,6 +16,13 @@ export class DvdOrderDetailComponent implements OnInit {
       private _router: Router,
       private _routeParams: RouteParams) {
   }
+  
+  doThePayment() {
+    this._dvdOrderService.payDvdOrder(this.dvdOrder.id).subscribe(
+      data => this.dvdOrder.externalState = data.externalState,
+      err => console.error(err)
+    );
+  }  
     
   ngOnInit() {
     var id = this._routeParams.get('id');

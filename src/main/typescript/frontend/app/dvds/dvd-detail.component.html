@@ -18,5 +18,5 @@
       (click)="goToPerson(director.id, 'director')"
      >{{director.firstName}} {{director.lastName | uppercase}} </li>
   </ul>
-  
+  <span><input #quantity placeholder="quantity" type="number" name="quantity" value="0"><button type="button" name="addToCart" (click)="addDvdToCart(dvd.id, quantity.value)">Add to cart</button></span>
 </div>

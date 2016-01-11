@@ -20,6 +20,7 @@ import {PersonDetailComponent} from './persons/person-detail.component';
     <nav>
       <a [routerLink]="['Dvds']">Dvds</a>
       <a [routerLink]="['DvdOrders']">Dvd orders</a>
+      <a *ngIf="getCart()" [routerLink]="['DvdOrderDetail', {id: getCart().id}]">Cart ({{getItemsNbr()}})</a>
     </nav>
     <router-outlet></router-outlet>
   `,
@@ -33,4 +34,18 @@ import {PersonDetailComponent} from './persons/person-detail.component';
   {path: '/dvd_orders', name: 'DvdOrders', component: DvdOrderListComponent},
   {path: '/dvd_orders/:id', name: 'DvdOrderDetail', component: DvdOrderDetailComponent},
 ])
-export class AppComponent { }
+export class AppComponent { 
+  
+  constructor(
+    private _dvdOrderService: DvdOrderService
+  ) {}
+
+  getCart() {
+    return this._dvdOrderService.getCart();
+  }
+  
+  getItemsNbr() {
+    return this._dvdOrderService.getItemsNbr();
+  }
+
+}

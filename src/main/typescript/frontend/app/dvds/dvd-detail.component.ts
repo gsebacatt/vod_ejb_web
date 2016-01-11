@@ -3,6 +3,8 @@ import {Dvd} from './dvd';
 import {RouteParams, Router} from 'angular2/router';
 import {PersonService} from '../persons/person.service';
 import {DvdService} from './dvd.service';
+import {AppComponent} from '../app.component';
+import {DvdOrderService} from '../dvd-orders/dvd-order.service';
 
 @Component({
   selector:'dvd-detail',
@@ -11,10 +13,12 @@ import {DvdService} from './dvd.service';
 })
 export class DvdDetailComponent implements OnInit, OnChanges {  
   public dvd: Dvd;
+  // public quantity:number;
   
   constructor(
       private _dvdService: DvdService,
       private _personService: PersonService,
+      private _dvdOrderService: DvdOrderService,
       private _router: Router,
       private _routeParams: RouteParams) {
     }
@@ -37,6 +41,10 @@ export class DvdDetailComponent implements OnInit, OnChanges {
       err => console.error(err)
     );
 
+  }
+  
+  addDvdToCart(id: number | string, quantity: number) {
+    this._dvdOrderService.addDvdToCart(id, quantity); 
   }
   
   goToPerson(id: number | string, personType: string) {

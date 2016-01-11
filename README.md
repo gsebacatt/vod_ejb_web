@@ -5,6 +5,36 @@ java beans as a backend and Angular 2 as a frontend. The following sections
 covers the architecture details, how frontend and backend interacts and finally
 how to install  and use it.
 
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+
+- [VoD project](#vod-project)
+	- [Architecture](#architecture)
+		- [REST API](#rest-api)
+			- [Resources](#resources)
+			- [Use-case scenarios](#use-case-scenarios)
+				- [Create a dvd](#create-a-dvd)
+				- [Create a dvd provider](#create-a-dvd-provider)
+				- [Add a dvd to a dvd provider](#add-a-dvd-to-a-dvd-provider)
+				- [Create a dvd order](#create-a-dvd-order)
+				- [Add a dvd to a dvd order](#add-a-dvd-to-a-dvd-order)
+				- [Available business logic related resources for a dvd order](#available-business-logic-related-resources-for-a-dvd-order)
+				- [Search resource](#search-resource)
+	- [Installation](#installation)
+		- [Backend](#backend)
+			- [Database](#database)
+			- [Wildfly server](#wildfly-server)
+				- [Add MySQL as a data source to Wildfly](#add-mysql-as-a-data-source-to-wildfly)
+			- [Compile and deploy](#compile-and-deploy)
+			- [Undeploy](#undeploy)
+		- [Frontend](#frontend)
+	- [How to use it](#how-to-use-it)
+		- [Ruby scripts](#ruby-scripts)
+			- [Seed the database](#seed-the-database)
+			- [Run the load_test](#run-the-loadtest)
+	- [Todos](#todos)
+
+<!-- /TOC -->
+
 ## Architecture
 
 This project is composed of a backend implemented in Java Entreprise Edition and
@@ -191,3 +221,6 @@ instruction to get it running.
 #### Run the load_test
 
 - the load test is intended to stress the server, creating deadlock likely situations and DB connections pool shortage. Type `ruby load_test.rb` with Sidekiq running.
+
+## Todos
+

@@ -7,7 +7,107 @@ how to install  and use it.
 
 ## Architecture
 
-`Comming soon`
+This project is composed of a backend implemented in Java Entreprise Edition and
+a frontend using Angular2 beta. The backend and the frontend interacts with each
+other through REST requests and responses. 
+
+### REST API
+
+#### Resources
+
+The backend business logic is exposed as REST resources, please note that the
+backend implementation could differ from the facade, as an example director and
+author are member of the same Person table but exposed as different resources.
+Below is a list of exposed resources available.
+
+- dvd 
+- dvd_provider 
+- dvd_order
+- author
+- director
+- payment : this resource is only available under the scope of a dvd_order, i.e with a url such as '/dvd_order/:id/payment'
+- shipment : this resource is only available under the scope of a dvd_order, same as payment
+- arrival : this resource is only available under the scope of a dvd
+- search : a search among a collection of objects is exposed as resource, with the following fields : 
+  - resource [string] : name of the resource type searched
+  - id [number] : id of the resource, optional
+  - fields [object] : a json providing fields to use in the search, eg if a dvd is searched according to its title, fields will be {title:"stringUsedForSearch"}
+  - parentResource : a search object with the same fields as above. It is used to scope a search within a parent resource, eg search for a dvd with a particular author.
+
+#### Use-case scenarios
+
+- the base url is `http://localhost/vod-2/api/`.
+- programs such as POSTMan or Paw are the perfect tools to test REST APIs.
+
+##### Create a dvd
+
+- POST at `dvd`
+- body : 
+```javascript
+{
+  "title": "8 Miles",
+  "price": "10",
+  "quantity": "20"
+}
+```
+
+##### Create a dvd provider
+
+- POST at `dvd_provider`
+- body :
+```javascript
+{
+  "name": "Big major"
+}
+```
+
+##### Add a dvd to a dvd provider
+
+- POST at 'dvd_provider/:id/dvd'
+- body :
+```javascript
+{
+  "title": "8 Miles",
+  "id": dvdId,
+  "price": "10",
+  "quantity": "20"  
+}
+```
+
+##### Create a dvd order
+
+- POST at `dvd_order`
+
+##### Add a dvd to a dvd order
+
+- POST at `dvd_order/:id/dvd`
+- same a "Add a dvd to a dvd provider"
+- a dvd could as well be added to `author` and `director` with the same pattern
+
+##### Available business logic related resources for a dvd order 
+
+- These resources carry heavy lifting business logic and should be used with great care.
+- POST at `dvd_order/:id/payment` to trigger a payment for a dvd order
+- POST at `dvd_order/:id/shipment` to trigger a shipment for a dvd order
+- POST at `dvd/:id/arrival` with a body as a json containing a `quantity` property
+
+##### Search resource
+
+- searches for every dvd which name contains 'Mile' and has an Author of id 1
+- POST at `search`
+- body :
+```javascript
+{
+  "resource": "dvd",
+  "fields": {
+    "title": "Mile"
+  },
+  "parentResource": {
+    "id": 1,
+    "resource": "author"
+  }
+}
+```
 
 ## Installation
 

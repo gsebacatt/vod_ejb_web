@@ -27,7 +27,7 @@ how to install  and use it.
 			- [Compile and deploy](#compile-and-deploy)
 			- [Undeploy](#undeploy)
 		- [Frontend](#frontend)
-	- [How to use it](#how-to-use-it)
+	- [Tools](#tools)
 		- [Ruby scripts](#ruby-scripts)
 			- [Seed the database](#seed-the-database)
 			- [Run the load_test](#run-the-loadtest)
@@ -198,9 +198,13 @@ Run `mvn wildfly:undeploy -fae` to undeploy the app, note that `mvn clean instal
 
 ### Frontend
 
-`Comming soon`
+- you need npm
+- from the project root directory : `cd src/main/typescript/frontend`
+- `npm start`
+- the command above should have started a server on localhost:3000
+- since this project uses CORS but still have issues to be fixed, it is recommended to launch the browser with security disabled (`--disable-web-security` for chrome).
 
-## How to use it
+## Tools
 
 ### Ruby scripts
 

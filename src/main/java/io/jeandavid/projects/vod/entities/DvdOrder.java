@@ -40,6 +40,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import org.hibernate.LockOptions;
 import org.hibernate.Session;
 
 /**

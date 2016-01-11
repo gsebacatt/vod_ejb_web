@@ -1,9 +1,10 @@
 <div *ngIf="dvd">
   <h3>"{{dvd.title}}"</h3>
   <ul>
-    <li><label>Price</label> {{dvd.price}}</li>
+    <li><label>Price</label> {{dvd.price | currency:'USD':false}}</li>
     <li><label>Quantity</label> {{dvd.quantity}}</li>
     <li><label>Major</label> {{dvd.dvdProvider.name}}</li>
+    <li><label>Ref</label> {{dvd.id}}</li>
   </ul>
   <h4>Authors</h4>
   <ul>

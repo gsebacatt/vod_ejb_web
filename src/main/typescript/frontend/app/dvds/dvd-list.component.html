@@ -3,7 +3,7 @@
   <li *ngFor="#dvd of dvds"
      (click)="onSelect(dvd)">
     <span class="badge">{{dvd.quantity}}</span>
-    {{dvd.title}}
+    {{dvd.title}}, #{{dvd.id}}
   </li>
 </ul>
 <dvd-detail [dvd]="selectedDvd"></dvd-detail>

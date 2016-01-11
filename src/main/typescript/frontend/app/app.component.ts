@@ -6,6 +6,10 @@ import {DvdService} from './dvds/dvd.service';
 import {DvdListComponent} from './dvds/dvd-list.component';
 import {DvdDetailComponent} from './dvds/dvd-detail.component';
 
+import {DvdOrderService} from './dvd-orders/dvd-order.service';
+import {DvdOrderListComponent} from './dvd-orders/dvd-order-list.component';
+import {DvdOrderDetailComponent} from './dvd-orders/dvd-order-detail.component';
+
 import {PersonService} from './persons/person.service';
 import {PersonDetailComponent} from './persons/person-detail.component';
 
@@ -15,15 +19,18 @@ import {PersonDetailComponent} from './persons/person-detail.component';
     <h1 class="title">Component Router</h1>
     <nav>
       <a [routerLink]="['Dvds']">Dvds</a>
+      <a [routerLink]="['DvdOrders']">Dvd orders</a>
     </nav>
     <router-outlet></router-outlet>
   `,
-  providers:  [DvdService, PersonService, HTTP_PROVIDERS],
+  providers:  [DvdService, DvdOrderService, PersonService, HTTP_PROVIDERS],
   directives: [ROUTER_DIRECTIVES]
 })
 @RouteConfig([
   {path: '/dvd', name: 'Dvds', component: DvdListComponent, useAsDefault: true},
   {path: '/dvd/:id', name: 'DvdDetail', component: DvdDetailComponent},
-  {path: '/person/:personType/:id', name: 'PersonDetail', component: PersonDetailComponent}
+  {path: '/person/:personType/:id', name: 'PersonDetail', component: PersonDetailComponent},
+  {path: '/dvd_orders', name: 'DvdOrders', component: DvdOrderListComponent},
+  {path: '/dvd_orders/:id', name: 'DvdOrderDetail', component: DvdOrderDetailComponent},
 ])
 export class AppComponent { }

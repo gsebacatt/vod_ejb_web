@@ -12,7 +12,7 @@ import {DvdService} from './dvd.service';
 export class DvdDetailComponent implements OnInit, OnChanges {  
   public dvd: Dvd;
   
-    constructor(
+  constructor(
       private _dvdService: DvdService,
       private _personService: PersonService,
       private _router: Router,
@@ -32,7 +32,7 @@ export class DvdDetailComponent implements OnInit, OnChanges {
     .subscribe(
       data => {
         this.dvd = data;
-        this.getDvdInfos(this.dvd);
+        this.getDvdInfos(this.dvd); 
       },
       err => console.error(err)
     );

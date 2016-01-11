@@ -1,0 +1,15 @@
+<h2>Dvd orders</h2>
+<ul>
+  <li *ngFor="#dvdOrder of parentDvdOrders"
+    (click)="goToDvdOrder(dvdOrder.id)"
+  >
+    <div>      
+      <span>Order placed on : {{dvdOrder.created | date}}</span>
+      <span>Price : {{dvdOrder.price | currency:'USD':false}}</span>
+    </div>
+    <div>
+      <span>Status : {{dvdOrder.externalState}}</span>
+      <span>Updated on : {{dvdOrder.updated | date}}</span>
+    </div>
+  </li>
+</ul>

@@ -1,0 +1,188 @@
+<h1 id="vod-project">VoD project</h1>
+<p>This is a project for a web application using Java EE and stateless entreprise<br>java beans as a backend and Angular 2 as a frontend. The following sections<br>covers the architecture details, how frontend and backend interacts and finally<br>how to install  and use it.</p>
+<!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
+<ul>
+<li><a href="#vod-project">VoD project</a><ul>
+<li><a href="#architecture">Architecture</a><ul>
+<li><a href="#rest-api">REST API</a><ul>
+<li><a href="#resources">Resources</a></li>
+<li><a href="#use-case-scenarios">Use-case scenarios</a><ul>
+<li><a href="#create-a-dvd">Create a dvd</a></li>
+<li><a href="#create-a-dvd-provider">Create a dvd provider</a></li>
+<li><a href="#add-a-dvd-to-a-dvd-provider">Add a dvd to a dvd provider</a></li>
+<li><a href="#create-a-dvd-order">Create a dvd order</a></li>
+<li><a href="#add-a-dvd-to-a-dvd-order">Add a dvd to a dvd order</a></li>
+<li><a href="#available-business-logic-related-resources-for-a-dvd-order">Available business logic related resources for a dvd order</a></li>
+<li><a href="#search-resource">Search resource</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#installation">Installation</a><ul>
+<li><a href="#backend">Backend</a><ul>
+<li><a href="#database">Database</a></li>
+<li><a href="#wildfly-server">Wildfly server</a><ul>
+<li><a href="#add-mysql-as-a-data-source-to-wildfly">Add MySQL as a data source to Wildfly</a></li>
+</ul>
+</li>
+<li><a href="#compile-and-deploy">Compile and deploy</a></li>
+<li><a href="#undeploy">Undeploy</a></li>
+</ul>
+</li>
+<li><a href="#frontend">Frontend</a></li>
+</ul>
+</li>
+<li><a href="#tools">Tools</a><ul>
+<li><a href="#ruby-scripts">Ruby scripts</a><ul>
+<li><a href="#seed-the-database">Seed the database</a></li>
+<li><a href="#run-the-loadtest">Run the load_test</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#todos">Todos</a></li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+<h2 id="architecture">Architecture</h2>
+<p>This project is composed of a backend implemented in Java Entreprise Edition and<br>a frontend using Angular2 beta. The backend and the frontend interacts with each<br>other through REST requests and responses. </p>
+<h3 id="rest-api">REST API</h3>
+<h4 id="resources">Resources</h4>
+<p>The backend business logic is exposed as REST resources, please note that the<br>backend implementation could differ from the facade, as an example director and<br>author are member of the same Person table but exposed as different resources.<br>Below is a list of exposed resources available.</p>
+<ul>
+<li>dvd </li>
+<li>dvd_provider </li>
+<li>dvd_order</li>
+<li>author</li>
+<li>director</li>
+<li>payment : this resource is only available under the scope of a dvd_order, i.e with a url such as &#39;/dvd_order/:id/payment&#39;</li>
+<li>shipment : this resource is only available under the scope of a dvd_order, same as payment</li>
+<li>arrival : this resource is only available under the scope of a dvd</li>
+<li>search : a search among a collection of objects is exposed as resource, with the following fields : <ul>
+<li>resource [string] : name of the resource type searched</li>
+<li>id [number] : id of the resource, optional</li>
+<li>fields [object] : a json providing fields to use in the search, eg if a dvd is searched according to its title, fields will be {title:&quot;stringUsedForSearch&quot;}</li>
+<li>parentResource : a search object with the same fields as above. It is used to scope a search within a parent resource, eg search for a dvd with a particular author.</li>
+</ul>
+</li>
+</ul>
+<h4 id="use-case-scenarios">Use-case scenarios</h4>
+<ul>
+<li>the base url is <code style="font-family: Inconsolata;">http://localhost/vod-2/api/</code>.</li>
+<li>programs such as POSTMan or Paw are the perfect tools to test REST APIs.</li>
+</ul>
+<h5 id="create-a-dvd">Create a dvd</h5>
+<ul>
+<li>POST at <code style="font-family: Inconsolata;">dvd</code></li>
+<li>body : <pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>title</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>8&nbsp;Miles</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>price</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>10</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>quantity</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>20</span><span class="punctuation definition string end js"><span>&quot;</span></span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span></span></div></pre>
+</li>
+</ul>
+<h5 id="create-a-dvd-provider">Create a dvd provider</h5>
+<ul>
+<li>POST at <code style="font-family: Inconsolata;">dvd_provider</code></li>
+<li>body :<pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>name</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>Big&nbsp;major</span><span class="punctuation definition string end js"><span>&quot;</span></span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span></span></div></pre>
+</li>
+</ul>
+<h5 id="add-a-dvd-to-a-dvd-provider">Add a dvd to a dvd provider</h5>
+<ul>
+<li>POST at &#39;dvd_provider/:id/dvd&#39;</li>
+<li>body :<pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>title</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>8&nbsp;Miles</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>id</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;dvdId</span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>price</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>10</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>quantity</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>20</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span>&nbsp;&nbsp;</span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span></span></div></pre>
+</li>
+</ul>
+<h5 id="create-a-dvd-order">Create a dvd order</h5>
+<ul>
+<li>POST at <code style="font-family: Inconsolata;">dvd_order</code></li>
+</ul>
+<h5 id="add-a-dvd-to-a-dvd-order">Add a dvd to a dvd order</h5>
+<ul>
+<li>POST at <code style="font-family: Inconsolata;">dvd_order/:id/dvd</code></li>
+<li>same a &quot;Add a dvd to a dvd provider&quot;</li>
+<li>a dvd could as well be added to <code style="font-family: Inconsolata;">author</code> and <code style="font-family: Inconsolata;">director</code> with the same pattern</li>
+</ul>
+<h5 id="available-business-logic-related-resources-for-a-dvd-order">Available business logic related resources for a dvd order</h5>
+<ul>
+<li>These resources carry heavy lifting business logic and should be used with great care.</li>
+<li>POST at <code style="font-family: Inconsolata;">dvd_order/:id/payment</code> to trigger a payment for a dvd order</li>
+<li>POST at <code style="font-family: Inconsolata;">dvd_order/:id/shipment</code> to trigger a shipment for a dvd order</li>
+<li>POST at <code style="font-family: Inconsolata;">dvd/:id/arrival</code> with a body as a json containing a <code style="font-family: Inconsolata;">quantity</code> property</li>
+</ul>
+<h5 id="search-resource">Search resource</h5>
+<ul>
+<li>searches for every dvd which name contains &#39;Mile&#39; and has an Author of id 1</li>
+<li>POST at <code style="font-family: Inconsolata;">search</code></li>
+<li>body :<pre class="editor-colors lang-javascript"><div class="line"><span class="source js"><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>resource</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>dvd</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>fields</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>title</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>Mile</span><span class="punctuation definition string end js"><span>&quot;</span></span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>parentResource</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="meta brace curly js"><span>{</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>id</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="constant numeric js"><span>1</span></span><span class="meta delimiter object comma js"><span>,</span></span></span></div><div class="line"><span class="source js"><span>&nbsp;&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>resource</span><span class="punctuation definition string end js"><span>&quot;</span></span></span><span class="keyword operator js"><span>:</span></span><span>&nbsp;</span><span class="string quoted double js"><span class="punctuation definition string begin js"><span>&quot;</span></span><span>author</span><span class="punctuation definition string end js"><span>&quot;</span></span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span></span></div><div class="line"><span class="source js"><span class="meta brace curly js"><span>}</span></span></span></div></pre>
+</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<h3 id="backend">Backend</h3>
+<p>The backend codebase was coded using NetBeans IDE but is meant to be used without any IDE leveraging maven&#39;s lifecycle commands.</p>
+<h4 id="database">Database</h4>
+<ul>
+<li>One mysql server installed, create a database named &#39;vod_project&#39;</li>
+<li>It should be accessible with the url localhost:$DEFAULT_PORT$/vod_project</li>
+</ul>
+<h4 id="wildfly-server">Wildfly server</h4>
+<p>The project uses Wildfly as the Java EE container, you must download it, and<br>follow the<br><a href="https://docs.jboss.org/author/display/WFLY9/Getting+Started+Guide">quickstart</a><br>instruction to have it running in standalone mode and with an access to the<br>admin console (with <code style="font-family: Inconsolata;">bin/add-user.sh</code>). Each time the backend is redeployed, the database is cleaned (it<br>uses a <code style="font-family: Inconsolata;">drop-and-create</code> java persistence strategy).</p>
+<h5 id="add-mysql-as-a-data-source-to-wildfly">Add MySQL as a data source to Wildfly</h5>
+<p><a href="http://giordanomaestro.blogspot.fr/2015/02/install-jdbc-driver-on-wildfly.html"><strong>source</strong></a></p>
+<ul>
+<li>download the MySQL jar connector</li>
+<li>go to your Wildfly directory</li>
+<li><code style="font-family: Inconsolata;">cd modules/system/layers/base &amp;&amp; mkdir -p com/mysql/driver/main &amp;&amp; cd com/mysql/driver/main</code></li>
+<li>copy the jar into <code style="font-family: Inconsolata;">modules/system/layers/base/com/mysql/driver/main</code></li>
+<li>create a file named <code style="font-family: Inconsolata;">module.xml</code> alogn with the jar file with the following content <pre class="editor-colors lang-xml"><div class="line"><span class="text xml"><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;</span></span><span class="entity name tag localname xml"><span>module</span></span><span>&nbsp;</span><span class="entity other attribute-name localname xml"><span>xmlns</span></span><span>=</span><span class="string quoted double xml"><span class="punctuation definition string begin xml"><span>&quot;</span></span><span>urn:jboss:module:1.3</span><span class="punctuation definition string end xml"><span>&quot;</span></span></span><span>&nbsp;</span><span class="entity other attribute-name localname xml"><span>name</span></span><span>=</span><span class="string quoted double xml"><span class="punctuation definition string begin xml"><span>&quot;</span></span><span>com.mysql.driver</span><span class="punctuation definition string end xml"><span>&quot;</span></span></span><span class="punctuation definition tag xml"><span>&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;</span></span><span class="entity name tag localname xml"><span>resources</span></span><span class="punctuation definition tag xml"><span>&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;</span></span><span class="entity name tag localname xml"><span>resource-root</span></span><span>&nbsp;</span><span class="entity other attribute-name localname xml"><span>path</span></span><span>=</span><span class="string quoted double xml"><span class="punctuation definition string begin xml"><span>&quot;</span></span><span>NAME_OF_YOUR_JAR_FILE</span><span class="punctuation definition string end xml"><span>&quot;</span></span></span><span>&nbsp;</span><span class="punctuation definition tag xml"><span>/&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;/</span></span><span class="entity name tag localname xml"><span>resources</span></span><span class="punctuation definition tag xml"><span>&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;</span></span><span class="entity name tag localname xml"><span>dependencies</span></span><span class="punctuation definition tag xml"><span>&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;</span></span><span class="entity name tag localname xml"><span>module</span></span><span>&nbsp;</span><span class="entity other attribute-name localname xml"><span>name</span></span><span>=</span><span class="string quoted double xml"><span class="punctuation definition string begin xml"><span>&quot;</span></span><span>javax.api</span><span class="punctuation definition string end xml"><span>&quot;</span></span></span><span class="punctuation definition tag xml"><span>/&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;</span></span><span class="entity name tag localname xml"><span>module</span></span><span>&nbsp;</span><span class="entity other attribute-name localname xml"><span>name</span></span><span>=</span><span class="string quoted double xml"><span class="punctuation definition string begin xml"><span>&quot;</span></span><span>javax.transaction.api</span><span class="punctuation definition string end xml"><span>&quot;</span></span></span><span class="punctuation definition tag xml"><span>/&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span>&nbsp;&nbsp;</span><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;/</span></span><span class="entity name tag localname xml"><span>dependencies</span></span><span class="punctuation definition tag xml"><span>&gt;</span></span></span></span></div><div class="line"><span class="text xml"><span class="meta tag xml"><span class="punctuation definition tag xml"><span>&lt;/</span></span><span class="entity name tag localname xml"><span>module</span></span><span class="punctuation definition tag xml"><span>&gt;</span></span></span></span></div></pre>
+</li>
+<li>in wildfly home, <code style="font-family: Inconsolata;">cd bin/</code> then <code style="font-family: Inconsolata;">./jboss-cli.sh</code> (you must have an instance of wildfly started using ./standalone.sh)</li>
+<li>run <code style="font-family: Inconsolata;">/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql.driver,driver-class-name=com.mysql.jdbc.Driver)</code> </li>
+<li>if you get a success, then you can go to the next step, if not, you have missed something.</li>
+<li>open wildfly console admin (localhost:9990) and Configuration &gt; Subsystems &gt; Datasources &gt; Non-XA &gt; Add</li>
+<li>at step 1/3 selec &quot;MySQL connector&quot; and ensure it have the following specs :<ul>
+<li>name : <code style="font-family: Inconsolata;">vod_project</code></li>
+<li>JNDI : <code style="font-family: Inconsolata;">java:/vod_project</code></li>
+</ul>
+</li>
+<li>at step 2/3 &quot;JDBC Driver&quot; go to detected driver and you should have &quot;mysql&quot;, select it.</li>
+<li>at step 3/3, enter your information related to the connection to your mysql server.</li>
+</ul>
+<h4 id="compile-and-deploy">Compile and deploy</h4>
+<p>Once wildfly is connected to the database and running, go to the project root,<br>and run <code style="font-family: Inconsolata;">mvn clean install wildfly:deploy</code>. The backend should be deployed at<br><code style="font-family: Inconsolata;">http://localhost:8080/vod-2</code>.  </p>
+<h4 id="undeploy">Undeploy</h4>
+<p>Run <code style="font-family: Inconsolata;">mvn wildfly:undeploy -fae</code> to undeploy the app, note that <code style="font-family: Inconsolata;">mvn clean install wildfly:deploy</code> will undeploy and deploy the app.</p>
+<h3 id="frontend">Frontend</h3>
+<ul>
+<li>you need npm</li>
+<li>from the project root directory : <code style="font-family: Inconsolata;">cd src/main/typescript/frontend</code></li>
+<li><code style="font-family: Inconsolata;">npm start</code></li>
+<li>the command above should have started a server on localhost:3000</li>
+<li>since this project uses CORS but still have issues to be fixed, it is recommended to launch the browser with security disabled (<code style="font-family: Inconsolata;">--disable-web-security</code> for chrome).</li>
+</ul>
+<h2 id="tools">Tools</h2>
+<h3 id="ruby-scripts">Ruby scripts</h3>
+<p>The project contains some ruby scripts to use the backend, below are some<br>instruction to get it running.</p>
+<ul>
+<li>you need to have <code style="font-family: Inconsolata;">ruby &gt;= 2.0</code> installed</li>
+<li>if you do not have bundle installed, <code style="font-family: Inconsolata;">gem install bundle</code></li>
+<li>go to <code style="font-family: Inconsolata;">$PROJECT_ROOT$/src/main/ruby/api_client</code></li>
+<li><code style="font-family: Inconsolata;">bundle install</code></li>
+<li>open a new terminal in the same directory</li>
+<li><code style="font-family: Inconsolata;">sidekiq -r ./api_client.rb</code></li>
+</ul>
+<h4 id="seed-the-database">Seed the database</h4>
+<ul>
+<li>a script that generates randomized data is provided in ruby, just type <code style="font-family: Inconsolata;">ruby seed_db.rb</code> with Sidekiq running.</li>
+</ul>
+<h4 id="run-the-load_test">Run the load_test</h4>
+<ul>
+<li>the load test is intended to stress the server, creating deadlock likely situations and DB connections pool shortage. Type <code style="font-family: Inconsolata;">ruby load_test.rb</code> with Sidekiq running.</li>
+</ul>
+<h2 id="todos">Todos</h2>
+<ul>
+<li>Add a User model to have several authorization levels (e.g. : managers, customers).</li>
+<li>Security</li>
+<li>Improve frontend style</li>
+<li>Implement back-office frontend</li>
+<li>Implement the missing feature of customer frontend (search, dvd providers, authors, directors lists)</li>
+</ul>

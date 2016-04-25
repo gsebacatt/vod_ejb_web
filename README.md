@@ -5,6 +5,14 @@ java beans as a backend and Angular 2 as a frontend. The following sections
 covers the architecture details, how frontend and backend interacts and finally
 how to install  and use it.
 
+__/!\ BEGIN DISCLAIMER /!\__
+
+__The project's scope is only the backend as a REST API, the frontend is just a trial of Angular2 Beta. Thus it is quite incomplete and bugged, apologies for that, but I won't fix it.__
+
+__/!\ END DISCLAIMER /!\__
+
+
+
 <!-- TOC depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
 - [VoD project](#vod-project)
